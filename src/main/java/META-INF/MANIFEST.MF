@@ -1,0 +1,114 @@
+Manifest-Version: 1.0
+Main-Class: edu.isi.karma.research.modeling.SearchForSemanticModels
+Class-Path: org-netbeans-modules-sampler-RELEASE82.jar poi-3.8-beta5.jar
+  icu4j-51.1.jar paranamer-2.3.jar xml-apis-ext-1.3.04.jar statistics-ap
+ i-0.9.2.jar filters-impl-0.9.2.jar jackson-core-asl-1.9.13.jar commons-
+ logging-1.2.jar gt-epsg-hsql-9.0-M0.jar sesame-queryalgebra-evaluation-
+ 2.7.1.jar gt-main-9.0-M0.jar gson-2.2.2.jar org-netbeans-swing-plaf-REL
+ EASE82.jar protobuf-java-2.5.0.jar spring-core-4.0.5.RELEASE.jar asm-al
+ l-5.0.1.jar sesame-queryresultio-api-2.7.1.jar ui-propertyeditor-0.9.2.
+ jar commons-cli-1.2.jar opencsv-3.8.jar itextpdf-5.5.12.jar jaxb-api-2.
+ 2.jar sesame-http-client-2.7.1.jar postgresql-9.1-901.jdbc4.jar fontbox
+ -1.8.4.jar batik-script-1.9.1.jar tdb-0.8.10.jar xmlgraphics-commons-2.
+ 2.jar org-netbeans-core-startup-base-RELEASE82.jar trove4j-3.0.3.jar jo
+ da-time-2.9.9.jar algorithms-plugin-0.9.2.jar osgi-resource-locator-1.0
+ .1.jar sesame-repository-api-2.7.1.jar sesame-rio-api-2.7.1.jar utils-l
+ ongtask-0.9.2.jar httpcore-4.4.5.jar avro-compiler-1.7.7.jar opennlp-ma
+ xent-3.0.3.jar batik-gvt-1.9.1.jar sesame-queryparser-serql-2.7.1.jar g
+ ephi-toolkit-0.9.2.jar arq-2.8.8.jar spring-expression-4.0.5.RELEASE.ja
+ r tools.jar datalab-api-0.9.2.jar org-netbeans-modules-queries-RELEASE8
+ 2.jar org-openide-util-lookup-RELEASE82.jar mongo-java-driver-2.12.0-rc
+ 2.jar org-netbeans-api-progress-nb-RELEASE82.jar org-openide-modules-RE
+ LEASE82.jar hadoop-annotations-2.4.0.2.1.3.0-563.jar org-openide-explor
+ er-RELEASE82.jar commons-pool-1.5.4.jar org-netbeans-api-progress-RELEA
+ SE82.jar io-generator-api-0.9.2.jar spring-beans-4.0.5.RELEASE.jar jyth
+ on-standalone-2.7-b3.jar jackson-databind-2.4.2.jar hsqldb-1.8.0.7.jar 
+ jackcess-1.2.10.jar io-generator-plugin-0.9.2.jar juniversalchardet-1.0
+ .3.jar dom4j-1.6.1.jar jaxb-xjc-2.2.jar geronimo-stax-api_1.0_spec-1.0.
+ 1.jar commons-el-1.0.jar jaxen-1.1.1.jar sesame-queryalgebra-model-2.7.
+ 1.jar json-20160810.jar batik-dom-1.9.1.jar sesame-queryparser-sparql-2
+ .7.1.jar ejml-core-0.41.jar snappy-java-1.0.5.jar graph-api-0.9.2.jar s
+ esame-sail-api-2.7.1.jar guava-13.0.1.jar ejml-dsparse-0.41.jar org-net
+ beans-modules-keyring-RELEASE82.jar vecmath-1.3.2.jar sesame-repository
+ -sparql-2.7.1.jar ejml-simple-0.41.jar avro-1.7.7.jar db-drivers-0.9.2.
+ jar org-openide-windows-RELEASE82.jar org-openide-actions-RELEASE82.jar
+  io-processor-plugin-0.9.2.jar fastjson-1.2.28.jar spring-tx-4.0.5.RELE
+ ASE.jar org-netbeans-core-RELEASE82.jar postgresql-42.1.4.jre7.jar xmlb
+ eans-2.3.0.jar jts-1.12.jar commons-io-2.4.jar jaxb-impl-2.2.jar org-op
+ enide-filesystems-RELEASE82.jar commons-math3-3.5.jar poi-ooxml-schemas
+ -3.8-beta5.jar gt-opengis-9.0-M0.jar spring-context-support-4.0.5.RELEA
+ SE.jar stanford-corenlp-3.4.jar batik-bridge-1.9.1.jar xml-apis-1.4.01.
+ jar batik-xml-1.9.1.jar commons-lang3-3.1.jar jetty-6.1.26.jar layout-a
+ pi-0.9.2.jar asm-all-repackaged-2.2.0-b21.jar sesame-queryparser-api-2.
+ 7.1.jar gt-referencing-9.0-M0.jar gt-shapefile-9.0-M0.jar sesame-rio-da
+ tatypes-2.7.1.jar org-openide-io-RELEASE82.jar commons-httpclient-3.1.j
+ ar xalan-2.6.0.jar ejml-all-0.41.jar apache-mime4j-dom-0.7.2.jar hk2-ap
+ i-2.2.0-b21.jar org-netbeans-api-io-RELEASE82.jar bcprov-jdk15-1.45.jar
+  io-importer-plugin-0.9.2.jar jackson-mapper-asl-1.9.13.jar sesame-rio-
+ turtle-2.7.1.jar commons-compress-1.4.1.jar entityExtraction-0.0.1.jar 
+ ejml-fsparse-0.41.jar cloning-1.8.5.jar batik-svg-dom-1.9.1.jar commons
+ -beanutils-1.9.2.jar preview-api-0.9.2.jar xmlenc-0.52.jar jempbox-1.8.
+ 4.jar jettison-1.1.jar sesame-sail-memory-2.7.1.jar org-netbeans-api-te
+ mplates-RELEASE82.jar jersey-server-1.9.jar java-string-similarity-2.0.
+ 0.jar jackson-core-2.3.3.jar apache-mime4j-core-0.7.2.jar jersey-common
+ -2.4.1.jar org-openide-filesystems-nb-RELEASE82.jar sesame-util-2.7.1.j
+ ar bcmail-jdk15-1.45.jar spring-context-4.0.5.RELEASE.jar jasper-runtim
+ e-5.5.23.jar hk2-locator-2.2.0-b21.jar layout-plugin-0.9.2.jar velocity
+ -1.7.jar jersey-json-1.9.jar utils-0.9.2.jar batik-awt-util-1.9.1.jar o
+ rg-netbeans-api-annotations-common-RELEASE82.jar tika-core-1.5.jar bati
+ k-anim-1.9.1.jar gt-epsg-extension-9.0-M0.jar commons-lang-2.6.jar jena
+ -arq-2.13.0.jar javax.json-api-1.0.jar virtjdbc4.jar lucene-core-4.8.0.
+ jar gt-metadata-9.0-M0.jar xmpcore-5.1.2.jar httpclient-4.5.2.jar sesam
+ e-rio-ntriples-2.7.1.jar org-netbeans-modules-masterfs-RELEASE82.jar lu
+ cene-analyzers-common-4.8.0.jar jcommon-1.0.23.jar jwnl-1.3.3.jar org-o
+ penide-text-RELEASE82.jar xercesImpl-2.7.1.jar vorbis-java-tika-0.1.jar
+  hadoop-common-2.4.0.2.1.3.0-563.jar asm-debug-all-4.1.jar mssql-jdbc-6
+ .2.1.jre7.jar batik-ext-1.9.1.jar sesame-repository-sail-2.7.1.jar ejml
+ -0.23.jar batik-constants-1.9.1.jar org-netbeans-libs-asm-RELEASE82.jar
+  sesame-query-2.7.1.jar xom-1.2.10.jar isoparser-1.0-RC-1.jar jsr-275-1
+ .0-beta-2.jar json-simple-1.1.1.jar rome-0.9.jar org-openide-util-ui-RE
+ LEASE82.jar graphviz-api-1.1.jar mysql-connector-java-6.0.6.jar spring-
+ jdbc-4.0.5.RELEASE.jar sesame-repository-http-2.7.1.jar jersey-core-1.9
+ .jar lucene-queryparser-4.8.0.jar commons-beanutils-core-1.8.0.jar colt
+ -1.2.0.jar jets3t-0.9.0.jar javax.servlet-api-3.0.1.jar log4j-1.2.13.ja
+ r spring-aop-4.0.5.RELEASE.jar org-openide-dialogs-RELEASE82.jar aspect
+ jrt-1.6.11.jar ejml-ddense-0.41.jar org-netbeans-swing-outline-RELEASE8
+ 2.jar xmlunit-1.2.jar gt-api-9.0-M0.jar objenesis-1.2.jar fastutil-6.5.
+ 1.jar jtds-1.2.6.jar sqlite-jdbc-3.20.0.jar jsp-api-2.1.jar slf4j-api-1
+ .6.0.jar poi-scratchpad-3.10-beta2.jar commons-csv-1.0.jar commons-coll
+ ections-3.2.1.jar virt_sesame2.jar sesame-rio-languages-2.7.1.jar jgrid
+ shift-1.0.jar spring-orm-4.0.5.RELEASE.jar gt-data-9.0-M0.jar cglib-2.2
+ .0-b21.jar vorbis-java-core-0.1.jar graphstore-0.5.9.jar lucene-queries
+ -4.8.0.jar jai_core-1.1.3.jar batik-css-1.9.1.jar stax-api-1.0-2.jar ba
+ tik-i18n-1.9.1.jar sesame-sail-inferencer-2.7.1.jar filters-api-0.9.2.j
+ ar iri-0.8.jar org-openide-nodes-RELEASE82.jar xz-1.0.jar stax-utils-sn
+ apshot-20100402.jar ejml-cdense-0.41.jar commons-codec-1.5.jar batik-wr
+ apper-0.9.2.jar batik-parser-1.9.1.jar project-api-0.9.2.jar org-openid
+ e-loaders-RELEASE82.jar ejml-zdense-0.41.jar javax.annotation-api-1.2.j
+ ar boilerpipe-1.1.0.jar filters-plugin-0.9.2.jar poi-ooxml-3.8-beta5.ja
+ r metadata-extractor-2.6.2.jar ejml-fdense-0.41.jar org-netbeans-bootst
+ rap-RELEASE82.jar jollyday-0.4.7.jar appearance-api-0.9.2.jar wstx-asl-
+ 3.2.9.jar batik-util-1.9.1.jar io-exporter-api-0.9.2.jar io-exporter-pr
+ eview-0.9.2.jar jasper-compiler-5.5.23.jar pdfbox-1.8.4.jar jersey-clie
+ nt-1.8.jar org-openide-util-RELEASE82.jar commons-configuration-1.6.jar
+  hk2-utils-2.2.0-b21.jar javax.ws.rs-api-2.0.jar javassist-3.12.1.GA.ja
+ r tagsoup-1.2.1.jar jdom-1.0.jar sesame-http-protocol-2.7.1.jar appeara
+ nce-plugin-0.9.2.jar jsr305-1.3.9.jar jena-2.6.4.jar preview-plugin-0.9
+ .2.jar commons-fileupload-1.3.2.jar jackson-annotations-2.4.0.jar xom-1
+ .0.jar commons-digester-1.8.jar jhighlight-1.0.jar batik-transcoder-1.9
+ .1.jar batik-svggen-1.9.1.jar jetty-util-6.1.26.jar mostrecentfiles-api
+ -0.9.2.jar lucene-sandbox-4.8.0.jar opennlp-tools-1.5.3.jar netcdf-4.2-
+ min.jar zookeeper-3.4.5.2.1.3.0-563.jar vorbis-java-core-0.1-tests.jar 
+ org-netbeans-swing-tabcontrol-RELEASE82.jar activation-1.1.jar java-xml
+ builder-0.4.jar statistics-plugin-0.9.2.jar io-exporter-plugin-0.9.2.ja
+ r jgrapht-0.8.3.jar visualization-api-0.9.2.jar aopalliance-1.0.jar ses
+ ame-queryresultio-sparqlxml-2.7.1.jar slf4j-log4j12-1.6.0.jar tika-pars
+ ers-1.5.jar core-library-wrapper-0.9.2.jar org-netbeans-modules-editor-
+ mimelookup-RELEASE82.jar JavaAPIforKml-2.2.0.jar xmlParserAPIs-2.6.2.ja
+ r jfreechart-1.0.19.jar asm-3.1.jar reflections-0.9.8.jar org-netbeans-
+ api-intent-RELEASE82.jar hadoop-auth-2.4.0.2.1.3.0-563.jar org-openide-
+ awt-RELEASE82.jar servlet-api-2.5.jar sesame-model-2.7.1.jar org-netbea
+ ns-core-startup-RELEASE82.jar commons-net-3.1.jar jsch-0.1.42.jar concu
+ rrent-1.3.4.jar ojdbc6-11.2.0.3.jar io-importer-api-0.9.2.jar javax.inj
+ ect-2.2.0-b21.jar stax-api-1.0.1.jar
+
