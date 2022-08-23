@@ -1,0 +1,29 @@
+Title,Object_URI,production_id,Attribution,Actor_URI,Begin Date,Birth_URI,End Date,Death_URI,Dated,Medium,Dimensions
+Object Title,Object_URI,production_id,Artist Name,Actor_URI,Artist Birth Date,Birth_URI,Artist Death Date,Death_URI,Artist Nationality,Object Earliest Date,Object Latest Date,Object Work Type,Object Rights,Object Facet Value 1,Object Link Source,dimensions
+title,Object_URI,production_id,name,Actor_URI,birthDate,Birth_URI,deathDate,Death_URI,nationality
+title,sourceURL,imageURL,production_id,artist,Actor_URI,birthDate,Birth_URI,deathDate,Death_URI,nationality,creationDate,creditLine,materials,dimensions,galleryLabel,provenance
+Object_URI,image,production_id,Who,Actor_URI,Date,Geography,Place_URI,Medium,Dimensions,Classification,Credit Line,Description,Provenance
+Title,Object_URI,production_id,Artist,Actor_URI,ArtistBornDate,Birth_URI,ArtistDiedDate,Death_URI,DateOfWork,Medium,Dimension,Classification,Owner,Person_URI,AquisitionDate,CreditLine,Description,Image
+title,Object_URI,production_id,name,Actor_URI,birth_year,Birth_URI,death_year,Death_URI,nationality,dates,origin,credit_line,Label_on_page,technique,image_url,dimension
+TITLE,production_id,AUTHOR,Actor_URI,IMAGE__IMAGESRC,DESCRIPTION,VIDEO
+name,birthDate,Birth_URI,deathDate,Death_URI,biography
+title,production_id,artist,Actor_URI,collection_URL,collection_name,credit,materials,inscription,dimensions,description,image_URL
+artist_name,Actor_URI,nationality,birth_data_and_place,long_biography,occupation
+title,production_id,artist_name,Actor_URI,nationality,date_made,technique,dimensions,description,img_url
+Titleofartwork,production_id,Artistname,Actor_URI,birthYear,Birth_URI,deathYear,Death_URI,Nationality,Typeofartwork,Dimensions,Credit,Linktodata,ImageURL
+title,production_id,artist,Actor_URI,technique,provenance,dimensions,additionalInfo,url,imageUrl
+title,production_id,name,Actor_URI,birth,Birth_URI,death,Death_URI,nationality,date,medium,dimensions,classification,credit,provenance,imageURL
+title,production_id,artist,Actor_URI,year,name,description,image
+title,production_id,artist,Actor_URI,artist_birth,Birth_URI,artist_death,Death_URI,nationality,artyear,technique,dimensions,credittext,artdesc,link,photo
+title,Object_URI,production_id,name,Actor_URI,birthDate,Birth_URI,deathDate,Death_URI,nationality
+title,sourceURL,imageURL,production_id,artist,Actor_URI,birthDate,Birth_URI,deathDate,Death_URI,nationality,creationDate,materials,dimensions,creditLine,galleryLabel,provenance
+Title,production_id,Artist_Name,Actor_URI,birth_date,Birth_URI,death_date,Death_URI,residence,Place_URI,Artwork_in_Focus,Production_Year,Artwork_Details,Image_URL
+artworkTitle,Object_URI,production_id,artistName,Actor_URI,birthDate,Birth_URI,deathDate,Death_URI,nationality,dateOfStartOfCreation,dateOfEndOfCreation,medium,dimensions,classification,creditLine
+Artwork_Name,Object_URI,production_id,Process,Artist_Name,Actor_URI,Artwork_Year,Dimensions,Provenance,image
+Title,production_id,Artist,Actor_URI,bornDate,Birth_URI,deathDate,Death_URI,DateOfWork,Medium,Description,Person_URI,Dimension,Classification,AquisitionDate,CreditLine,Owner,Object_URI,Image
+title,Object_URI,production_id,artist,Actor_URI,birth_date,Birth_URI,death_date,Death_URI,nationality,made,dim,prov,image_url
+Title,Object_URI,production_id,ArtistName,Actor_URI,BirthDate,Birth_URI,DeathDate,Death_URI,Date_made,Subtype_of_Art,Credit,Type_of_Art,Inscription,Dimensions,Pic_URL
+title,production_id,artistName,Actor_URI,birthYear,Birth_URI,deathYear,Death_URI,birthPlaceCity,Place_URI,nationality,collection,type,dimensions,url,when-acquired,credit,image-URL
+Artwork_Title,production_id,name,artist_URI,birth_date,Birth_URI,death_date,Death_URI,nationality,date,medium,credit_line,description,object_uri,image_url
+Title,production_id,Maker,Actor_URI,Maker Birth Date,Birth_URI,Maker Death Date,Death_URI,Nationality,Materials,Place Made,Place_URI,Collector,Owner,Measurements,Category,Credit Line,Home Location,How Acquired?,Description
+Title,production_id,Attribution,Actor_URI,Dated,Medium,Object Name,Dimensions,Description
