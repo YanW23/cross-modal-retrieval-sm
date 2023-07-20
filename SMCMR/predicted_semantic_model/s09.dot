@@ -1,0 +1,27 @@
+digraph n0 {
+fontcolor="blue"
+remincross="true"
+label=""
+subgraph cluster {
+label="model"
+n2[style="filled",color="white",fillcolor="lightgray",label="E52_Time-Span1"];
+n3[shape="plaintext",style="filled",fillcolor="gold",label="deathDate\n[E52_Time-Span,P82_at_some_time_within,1.0]"];
+n4[style="filled",color="white",fillcolor="lightgray",label="E21_Person1"];
+n5[shape="plaintext",style="filled",fillcolor="gold",label="biography\n[E22_Man-Made_Object,P3_has_note,0.347]\n[E33_Linguistic_Object,P3_has_note,0.29]\n[E35_Title,label,0.233]\n[E34_Inscription,P3_has_note,0.13]"];
+n6[style="filled",color="white",fillcolor="lightgray",label="E69_Death1"];
+n7[style="filled",color="white",fillcolor="lightgray",label="E82_Actor_Appellation1"];
+n8[shape="plaintext",style="filled",fillcolor="gold",label="name\n[E82_Actor_Appellation,label,0.459]\n[E78_Collection,label,0.192]\n[E35_Title,label,0.182]\n[E78_Collection,classLink,0.168]"];
+n9[style="filled",color="white",fillcolor="lightgray",label="E52_Time-Span2"];
+n10[shape="plaintext",style="filled",fillcolor="gold",label="birthDate\n[E52_Time-Span,P82_at_some_time_within,1.0]"];
+n11[style="filled",color="white",fillcolor="lightgray",label="E67_Birth1"];
+}
+n2 -> n3[color="brown",fontcolor="black",label="P82_at_some_time_within\nw=1.0"]
+n4 -> n5[color="brown",fontcolor="black",label="P3_has_note\nw=1.0"]
+n4 -> n6[color="brown",fontcolor="black",label="P100i_died_in\nw=1.0"]
+n6 -> n2[color="brown",fontcolor="black",label="P4_has_time-span\nw=1.0"]
+n7 -> n8[color="brown",fontcolor="black",label="label\nw=1.0"]
+n4 -> n7[color="brown",fontcolor="black",label="P131_is_identified_by\nw=1.0"]
+n9 -> n10[color="brown",fontcolor="black",label="P82_at_some_time_within\nw=1.0"]
+n4 -> n11[color="brown",fontcolor="black",label="P98i_was_born\nw=1.0"]
+n11 -> n9[color="brown",fontcolor="black",label="P4_has_time-span\nw=1.0"]
+}

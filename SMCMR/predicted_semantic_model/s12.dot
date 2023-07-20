@@ -1,0 +1,43 @@
+digraph n0 {
+fontcolor="blue"
+remincross="true"
+label=""
+subgraph cluster {
+label="model"
+n2[style="filled",color="white",fillcolor="lightgray",label="E22_Man-Made_Object1"];
+n3[shape="plaintext",style="filled",fillcolor="gold",label="description\n[E33_Linguistic_Object,P3_has_note,0.41]\n[E22_Man-Made_Object,P3_has_note,0.316]\n[E35_Title,label,0.158]\n[E12_Production,P3_has_note,0.116]"];
+n4[style="filled",color="white",fillcolor="lightgray",label="E52_Time-Span3"];
+n5[shape="plaintext",style="filled",fillcolor="gold",label="date_made\n[E52_Time-Span,P82_at_some_time_within,1.0]"];
+n6[style="filled",color="white",fillcolor="lightgray",label="E12_Production1"];
+n7[style="filled",color="white",fillcolor="lightgray",label="E74_Group1"];
+n8[shape="plaintext",style="filled",fillcolor="gold",label="nationality\n[E74_Group,label,0.822]\n[E33_Linguistic_Object,P3_has_note,0.097]\n[E35_Title,label,0.047]\n[E12_Production,P3_has_note,0.034]"];
+n9[style="filled",color="white",fillcolor="lightgray",label="E21_Person1"];
+n10[style="filled",color="white",fillcolor="lightgray",label="E54_Dimension1"];
+n11[shape="plaintext",style="filled",fillcolor="gold",label="dimensions\n[E54_Dimension,P3_has_note,0.577]\n[E34_Inscription,P3_has_note,0.158]\n[E22_Man-Made_Object,P3_has_note,0.155]\n[E35_Title,label,0.11]"];
+n12[style="filled",color="white",fillcolor="lightgray",label="E55_Type1"];
+n13[shape="plaintext",style="filled",fillcolor="gold",label="technique\n[E12_Production,P3_has_note,0.388]\n[E55_Type,label,0.382]\n[E22_Man-Made_Object,P3_has_note,0.13]\n[E34_Inscription,P3_has_note,0.1]"];
+n14[style="filled",color="white",fillcolor="lightgray",label="E38_Image1"];
+n15[shape="plaintext",style="filled",fillcolor="gold",label="img_url\n[E38_Image,label,0.698]\n[E8_Acquisition,P3_has_note,0.116]\n[E22_Man-Made_Object,classLink,0.109]\n[E78_Collection,classLink,0.077]"];
+n16[style="filled",color="white",fillcolor="lightgray",label="E82_Actor_Appellation2"];
+n17[shape="plaintext",style="filled",fillcolor="gold",label="artist_name\n[E82_Actor_Appellation,label,0.538]\n[E33_Linguistic_Object,P3_has_note,0.304]\n[E35_Title,label,0.085]\n[E8_Acquisition,P3_has_note,0.073]"];
+n18[style="filled",color="white",fillcolor="lightgray",label="E35_Title1"];
+n19[shape="plaintext",style="filled",fillcolor="gold",label="title\n[E35_Title,label,0.357]\n[E22_Man-Made_Object,P3_has_note,0.277]\n[E33_Linguistic_Object,P3_has_note,0.268]\n[E34_Inscription,P3_has_note,0.099]"];
+}
+n2 -> n3[color="brown",fontcolor="black",label="P3_has_note\nw=1.0"]
+n4 -> n5[color="brown",fontcolor="black",label="P82_at_some_time_within\nw=1.0"]
+n2 -> n6[color="brown",fontcolor="black",label="P108i_was_produced_by\nw=1.0"]
+n6 -> n4[color="brown",fontcolor="black",label="P4_has_time-span\nw=1.0"]
+n7 -> n8[color="brown",fontcolor="black",label="label\nw=1.0"]
+n6 -> n9[color="brown",fontcolor="black",label="P14_carried_out_by\nw=1.0"]
+n9 -> n7[color="brown",fontcolor="black",label="P107i_is_current_or_former_member_of\nw=1.0"]
+n10 -> n11[color="brown",fontcolor="black",label="P3_has_note\nw=1.0"]
+n2 -> n10[color="brown",fontcolor="black",label="P43_has_dimension\nw=1.0"]
+n12 -> n13[color="brown",fontcolor="black",label="label\nw=1.0"]
+n6 -> n12[color="brown",fontcolor="black",label="P32_used_general_technique\nw=1.0"]
+n14 -> n15[color="brown",fontcolor="black",label="label\nw=1.0"]
+n14 -> n2[color="brown",fontcolor="black",label="P138_represents\nw=1.0"]
+n16 -> n17[color="brown",fontcolor="black",label="label\nw=1.0"]
+n9 -> n16[color="brown",fontcolor="black",label="P131_is_identified_by\nw=1.0"]
+n18 -> n19[color="brown",fontcolor="black",label="label\nw=1.0"]
+n2 -> n18[color="brown",fontcolor="black",label="P102_has_title\nw=1.0"]
+}

@@ -1,0 +1,35 @@
+digraph n0 {
+fontcolor="blue"
+remincross="true"
+label=""
+subgraph cluster {
+label="model"
+n2[style="filled",color="white",fillcolor="lightgray",label="E52_Time-Span1"];
+n3[shape="plaintext",style="filled",fillcolor="gold",label="year\n[E52_Time-Span,P82_at_some_time_within,1.0]"];
+n4[style="filled",color="white",fillcolor="lightgray",label="E22_Man-Made_Object1"];
+n5[shape="plaintext",style="filled",fillcolor="gold",label="description\n[E8_Acquisition,P3_has_note,0.389]\n[E22_Man-Made_Object,P3_has_note,0.233]\n[E35_Title,label,0.198]\n[E54_Dimension,P3_has_note,0.18]"];
+n6[style="filled",color="white",fillcolor="lightgray",label="E12_Production1"];
+n7[style="filled",color="white",fillcolor="lightgray",label="E38_Image1"];
+n8[shape="plaintext",style="filled",fillcolor="gold",label="image\n[E38_Image,label,0.759]\n[E78_Collection,classLink,0.128]\n[E22_Man-Made_Object,classLink,0.077]\n[E34_Inscription,P3_has_note,0.036]"];
+n9[style="filled",color="white",fillcolor="lightgray",label="E82_Actor_Appellation2"];
+n10[shape="plaintext",style="filled",fillcolor="gold",label="artist\n[E82_Actor_Appellation,label,0.571]\n[E22_Man-Made_Object,P3_has_note,0.169]\n[E33_Linguistic_Object,P3_has_note,0.152]\n[E35_Title,label,0.109]"];
+n11[style="filled",color="white",fillcolor="lightgray",label="E21_Person2"];
+n12[style="filled",color="white",fillcolor="lightgray",label="E35_Title1"];
+n13[shape="plaintext",style="filled",fillcolor="gold",label="title\n[E35_Title,label,0.385]\n[E22_Man-Made_Object,P3_has_note,0.334]\n[E33_Linguistic_Object,P3_has_note,0.214]\n[E34_Inscription,P3_has_note,0.067]"];
+n14[style="filled",color="white",fillcolor="lightgray",label="E78_Collection1"];
+n15[shape="plaintext",style="filled",fillcolor="gold",label="collection\n[E34_Inscription,P3_has_note,0.326]\n[E33_Linguistic_Object,P3_has_note,0.23]\n[E35_Title,label,0.228]\n[E22_Man-Made_Object,P3_has_note,0.216]"];
+}
+n2 -> n3[color="brown",fontcolor="black",label="P82_at_some_time_within\nw=1.0"]
+n4 -> n5[color="brown",fontcolor="black",label="P3_has_note\nw=1.0"]
+n4 -> n6[color="brown",fontcolor="black",label="P108i_was_produced_by\nw=1.0"]
+n6 -> n2[color="brown",fontcolor="black",label="P4_has_time-span\nw=1.0"]
+n7 -> n8[color="brown",fontcolor="black",label="label\nw=1.0"]
+n7 -> n4[color="brown",fontcolor="black",label="P138_represents\nw=1.0"]
+n9 -> n10[color="brown",fontcolor="black",label="label\nw=1.0"]
+n6 -> n11[color="brown",fontcolor="black",label="P14_carried_out_by\nw=1.0"]
+n11 -> n9[color="brown",fontcolor="black",label="P131_is_identified_by\nw=1.0"]
+n12 -> n13[color="brown",fontcolor="black",label="label\nw=1.0"]
+n4 -> n12[color="brown",fontcolor="black",label="P102_has_title\nw=1.0"]
+n14 -> n15[color="brown",fontcolor="black",label="label\nw=1.0"]
+n4 -> n14[color="brown",fontcolor="black",label="P46i_forms_part_of\nw=1.0"]
+}
