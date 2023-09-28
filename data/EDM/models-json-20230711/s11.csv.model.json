@@ -1,0 +1,640 @@
+{
+    "id": "s11.csv",
+    "name": "s11.csv",
+    "description": null,
+    "sourceColumns": [
+        {
+            "id": "HN26006",
+            "hNodeId": "HN26006",
+            "columnName": "long_biography"
+        },
+        {
+            "id": "HN26007",
+            "hNodeId": "HN26007",
+            "columnName": "occupation"
+        },
+        {
+            "id": "HN26002",
+            "hNodeId": "HN26002",
+            "columnName": "artist_name"
+        },
+        {
+            "id": "HN26003",
+            "hNodeId": "HN26003",
+            "columnName": "nationality"
+        },
+        {
+            "id": "HN26004",
+            "hNodeId": "HN26004",
+            "columnName": "birthDate"
+        },
+        {
+            "id": "HN26005",
+            "hNodeId": "HN26005",
+            "columnName": "deathDate"
+        }
+    ],
+    "mappingToSourceColumns": [
+        {
+            "id": "HN26006",
+            "sourceColumnId": "HN26006"
+        },
+        {
+            "id": "HN26007",
+            "sourceColumnId": "HN26007"
+        },
+        {
+            "id": "HN26002",
+            "sourceColumnId": "HN26002"
+        },
+        {
+            "id": "HN26003",
+            "sourceColumnId": "HN26003"
+        },
+        {
+            "id": "HN26004",
+            "sourceColumnId": "HN26004"
+        },
+        {
+            "id": "HN26005",
+            "sourceColumnId": "HN26005"
+        }
+    ],
+    "graph": {
+        "nodes": [
+            {
+                "id": "http://www.americanartcollaborative.org/ontology/Person1",
+                "label": {
+                    "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                    "rdfsLabel": "An artist"
+                },
+                "type": "InternalNode",
+                "modelIds": null
+            },
+            {
+                "id": "HN26006",
+                "label": {
+                    "uri": "HN26006",
+                    "rdfsLabel": null
+                },
+                "type": "ColumnNode",
+                "hNodeId": "HN26006",
+                "columnName": "long_biography",
+                "rdfLiteralType": null,
+                "language": "",
+                "userSemanticTypes": [
+                    {
+                        "hNodeId": "HN26006",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/biographicalInformation",
+                            "rdfsLabel": "Biographical information"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26006",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/biographicalInformation",
+                            "rdfsLabel": "Biographical information"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26006",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/biographicalInformation",
+                            "rdfsLabel": "Biographical information"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    }
+                ],
+                "learnedSemanticTypes": [
+                    {
+                        "hNodeId": "HN26006",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/CulturalHeritageObject",
+                            "rdfsLabel": "A cultural heritage object"
+                        },
+                        "type": {
+                            "uri": "http://purl.org/dc/terms/provenance",
+                            "rdfsLabel": "Provenance"
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.587186467417945
+                    },
+                    {
+                        "hNodeId": "HN26006",
+                        "domain": {
+                            "uri": "http://xmlns.com/foaf/0.1/Document",
+                            "rdfsLabel": "Document"
+                        },
+                        "type": {
+                            "uri": "http://www.w3.org/2000/01/rdf-schema#label",
+                            "rdfsLabel": null
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.3215048957470135
+                    },
+                    {
+                        "hNodeId": "HN26006",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/nameOfThePerson",
+                            "rdfsLabel": "Name of the person"
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.09130863683504144
+                    }
+                ],
+                "modelIds": null
+            },
+            {
+                "id": "HN26007",
+                "label": {
+                    "uri": "HN26007",
+                    "rdfsLabel": null
+                },
+                "type": "ColumnNode",
+                "hNodeId": "HN26007",
+                "columnName": "occupation",
+                "rdfLiteralType": null,
+                "language": "",
+                "userSemanticTypes": [
+                    {
+                        "hNodeId": "HN26007",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/professionOrOccupation",
+                            "rdfsLabel": "Profession or occupation"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26007",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/professionOrOccupation",
+                            "rdfsLabel": "Profession or occupation"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26007",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/professionOrOccupation",
+                            "rdfsLabel": "Profession or occupation"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    }
+                ],
+                "learnedSemanticTypes": [
+                    {
+                        "hNodeId": "HN26007",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/biographicalInformation",
+                            "rdfsLabel": "Biographical information"
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.7153190740773114
+                    },
+                    {
+                        "hNodeId": "HN26007",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/nameOfThePerson",
+                            "rdfsLabel": "Name of the person"
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.28132939232757503
+                    },
+                    {
+                        "hNodeId": "HN26007",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/CulturalHeritageObject",
+                            "rdfsLabel": "A cultural heritage object"
+                        },
+                        "type": {
+                            "uri": "http://purl.org/dc/terms/provenance",
+                            "rdfsLabel": "Provenance"
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.002419469965720949
+                    },
+                    {
+                        "hNodeId": "HN26007",
+                        "domain": {
+                            "uri": "http://xmlns.com/foaf/0.1/Document",
+                            "rdfsLabel": "Document"
+                        },
+                        "type": {
+                            "uri": "http://www.w3.org/2000/01/rdf-schema#label",
+                            "rdfsLabel": null
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 9.320636293925935E-4
+                    }
+                ],
+                "modelIds": null
+            },
+            {
+                "id": "HN26002",
+                "label": {
+                    "uri": "HN26002",
+                    "rdfsLabel": null
+                },
+                "type": "ColumnNode",
+                "hNodeId": "HN26002",
+                "columnName": "artist_name",
+                "rdfLiteralType": null,
+                "language": "",
+                "userSemanticTypes": [
+                    {
+                        "hNodeId": "HN26002",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/nameOfThePerson",
+                            "rdfsLabel": "Name of the person"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26002",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/nameOfThePerson",
+                            "rdfsLabel": "Name of the person"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26002",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/nameOfThePerson",
+                            "rdfsLabel": "Name of the person"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    }
+                ],
+                "learnedSemanticTypes": [
+                    {
+                        "hNodeId": "HN26002",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/CulturalHeritageObject",
+                            "rdfsLabel": "A cultural heritage object"
+                        },
+                        "type": {
+                            "uri": "http://purl.org/dc/terms/provenance",
+                            "rdfsLabel": "Provenance"
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.7429521878401315
+                    },
+                    {
+                        "hNodeId": "HN26002",
+                        "domain": {
+                            "uri": "http://xmlns.com/foaf/0.1/Document",
+                            "rdfsLabel": "Document"
+                        },
+                        "type": {
+                            "uri": "http://www.w3.org/2000/01/rdf-schema#label",
+                            "rdfsLabel": null
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.25494766778788397
+                    },
+                    {
+                        "hNodeId": "HN26002",
+                        "domain": {
+                            "uri": "http://www.europeana.eu/schemas/edm/WebResource",
+                            "rdfsLabel": "Web Resource"
+                        },
+                        "type": {
+                            "uri": "http://www.w3.org/2000/01/rdf-schema#label",
+                            "rdfsLabel": null
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.0021001443719844744
+                    }
+                ],
+                "modelIds": null
+            },
+            {
+                "id": "HN26003",
+                "label": {
+                    "uri": "HN26003",
+                    "rdfsLabel": null
+                },
+                "type": "ColumnNode",
+                "hNodeId": "HN26003",
+                "columnName": "nationality",
+                "rdfLiteralType": null,
+                "language": "",
+                "userSemanticTypes": [
+                    {
+                        "hNodeId": "HN26003",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/countryAssociatedWithThePerson",
+                            "rdfsLabel": "Country associated with the person"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26003",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/countryAssociatedWithThePerson",
+                            "rdfsLabel": "Country associated with the person"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26003",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/countryAssociatedWithThePerson",
+                            "rdfsLabel": "Country associated with the person"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    }
+                ],
+                "learnedSemanticTypes": [
+                    {
+                        "hNodeId": "HN26003",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/CulturalHeritageObject",
+                            "rdfsLabel": "A cultural heritage object"
+                        },
+                        "type": {
+                            "uri": "http://purl.org/dc/terms/provenance",
+                            "rdfsLabel": "Provenance"
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.7826086787127196
+                    },
+                    {
+                        "hNodeId": "HN26003",
+                        "domain": {
+                            "uri": "http://xmlns.com/foaf/0.1/Document",
+                            "rdfsLabel": "Document"
+                        },
+                        "type": {
+                            "uri": "http://www.w3.org/2000/01/rdf-schema#label",
+                            "rdfsLabel": null
+                        },
+                        "origin": "TfIdfModel",
+                        "confidenceScore": 0.2173913212872804
+                    }
+                ],
+                "modelIds": null
+            },
+            {
+                "id": "HN26004",
+                "label": {
+                    "uri": "HN26004",
+                    "rdfsLabel": null
+                },
+                "type": "ColumnNode",
+                "hNodeId": "HN26004",
+                "columnName": "birthDate",
+                "rdfLiteralType": null,
+                "language": "",
+                "userSemanticTypes": [
+                    {
+                        "hNodeId": "HN26004",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/dateOfBirth",
+                            "rdfsLabel": "Date of birth"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26004",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/dateOfBirth",
+                            "rdfsLabel": "Date of birth"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26004",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/dateOfBirth",
+                            "rdfsLabel": "Date of birth"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    }
+                ],
+                "learnedSemanticTypes": null,
+                "modelIds": null
+            },
+            {
+                "id": "HN26005",
+                "label": {
+                    "uri": "HN26005",
+                    "rdfsLabel": null
+                },
+                "type": "ColumnNode",
+                "hNodeId": "HN26005",
+                "columnName": "deathDate",
+                "rdfLiteralType": null,
+                "language": "",
+                "userSemanticTypes": [
+                    {
+                        "hNodeId": "HN26005",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/dateOfDeath",
+                            "rdfsLabel": "Date of death"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26005",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/dateOfDeath",
+                            "rdfsLabel": "Date of death"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    },
+                    {
+                        "hNodeId": "HN26005",
+                        "domain": {
+                            "uri": "http://www.americanartcollaborative.org/ontology/Person",
+                            "rdfsLabel": "An artist"
+                        },
+                        "type": {
+                            "uri": "http://rdvocab.info/ElementsGr2/dateOfDeath",
+                            "rdfsLabel": "Date of death"
+                        },
+                        "origin": "User",
+                        "confidenceScore": 1.0
+                    }
+                ],
+                "learnedSemanticTypes": null,
+                "modelIds": null
+            }
+        ],
+        "links": [
+            {
+                "id": "http://www.americanartcollaborative.org/ontology/Person1---http://rdvocab.info/ElementsGr2/biographicalInformation---HN26006",
+                "weight": 0.01,
+                "type": "DataPropertyLink",
+                "label": {
+                    "uri": "http://rdvocab.info/ElementsGr2/biographicalInformation",
+                    "rdfsLabel": "Biographical information"
+                },
+                "status": "ForcedByUser",
+                "keyInfo": "None",
+                "modelIds": null
+            },
+            {
+                "id": "http://www.americanartcollaborative.org/ontology/Person1---http://rdvocab.info/ElementsGr2/professionOrOccupation---HN26007",
+                "weight": 0.01,
+                "type": "DataPropertyLink",
+                "label": {
+                    "uri": "http://rdvocab.info/ElementsGr2/professionOrOccupation",
+                    "rdfsLabel": "Profession or occupation"
+                },
+                "status": "ForcedByUser",
+                "keyInfo": "None",
+                "modelIds": null
+            },
+            {
+                "id": "http://www.americanartcollaborative.org/ontology/Person1---http://rdvocab.info/ElementsGr2/nameOfThePerson---HN26002",
+                "weight": 0.01,
+                "type": "DataPropertyLink",
+                "label": {
+                    "uri": "http://rdvocab.info/ElementsGr2/nameOfThePerson",
+                    "rdfsLabel": "Name of the person"
+                },
+                "status": "ForcedByUser",
+                "keyInfo": "None",
+                "modelIds": null
+            },
+            {
+                "id": "http://www.americanartcollaborative.org/ontology/Person1---http://rdvocab.info/ElementsGr2/countryAssociatedWithThePerson---HN26003",
+                "weight": 0.01,
+                "type": "DataPropertyLink",
+                "label": {
+                    "uri": "http://rdvocab.info/ElementsGr2/countryAssociatedWithThePerson",
+                    "rdfsLabel": "Country associated with the person"
+                },
+                "status": "ForcedByUser",
+                "keyInfo": "None",
+                "modelIds": null
+            },
+            {
+                "id": "http://www.americanartcollaborative.org/ontology/Person1---http://rdvocab.info/ElementsGr2/dateOfBirth---HN26004",
+                "weight": 0.01,
+                "type": "DataPropertyLink",
+                "label": {
+                    "uri": "http://rdvocab.info/ElementsGr2/dateOfBirth",
+                    "rdfsLabel": "Date of birth"
+                },
+                "status": "ForcedByUser",
+                "keyInfo": "None",
+                "modelIds": null
+            },
+            {
+                "id": "http://www.americanartcollaborative.org/ontology/Person1---http://rdvocab.info/ElementsGr2/dateOfDeath---HN26005",
+                "weight": 0.01,
+                "type": "DataPropertyLink",
+                "label": {
+                    "uri": "http://rdvocab.info/ElementsGr2/dateOfDeath",
+                    "rdfsLabel": "Date of death"
+                },
+                "status": "ForcedByUser",
+                "keyInfo": "None",
+                "modelIds": null
+            }
+        ]
+    }
+}
