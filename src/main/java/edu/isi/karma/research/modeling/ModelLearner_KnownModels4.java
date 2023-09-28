@@ -9,6 +9,7 @@ import com.hp.hpl.jena.ontology.*;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import edu.isi.karma.config.ModelingConfiguration;
 import edu.isi.karma.config.ModelingConfigurationRegistry;
+import edu.isi.karma.modeling.ModelingParams;
 import edu.isi.karma.modeling.alignment.*;
 import edu.isi.karma.modeling.alignment.learner.*;
 import edu.isi.karma.modeling.ontology.OntologyManager;
@@ -43,6 +44,7 @@ public class ModelLearner_KnownModels4 {
     private static Logger logger = LoggerFactory.getLogger(ModelLearner_KnownModels4.class);
     private static OntologyManager ontologyManager = null;
     private static List<SemanticModel> semanticModels = null;
+    private static List<SemanticModel> semanticModelsWithCandidateSemanticTypes = null;
     private GraphBuilder graphBuilder = null;
     private NodeIdFactory nodeIdFactory = null;
     private List<Node> steinerNodes = null;
@@ -514,6 +516,130 @@ public class ModelLearner_KnownModels4 {
         return mappingStruct;
     }
 
+    /**hypothesize karma 2023/07/03**/
+    public List<SortableSemanticModel> hypothesizeKarma(boolean useCorrectTypes, int numberOfCandidates, boolean useCandidateTypes) throws Exception {
+
+        ModelingConfiguration modelingConfiguration = ModelingConfigurationRegistry.getInstance().getModelingConfiguration(ontologyManager.getContextId());
+        List<SortableSemanticModel> sortableSemanticModels = new ArrayList<SortableSemanticModel>();
+
+        /**It is used to save the mapping relations between the column nodes in new source and merged graph. 8 June 2018**/
+        //保存新源到merged graph中的映射关系
+        Map<ColumnNode, ColumnNode> mappingToSourceColumns = new HashMap<ColumnNode, ColumnNode>();
+
+        /**It is used to save the steiner nodes in the merged graph. 8 June 2018.**/
+        //保存merged graph中的steiner nodes
+        List<ColumnNode> columnNodes = new LinkedList<ColumnNode>();
+
+        /**The column nodes in the new source is saved in 'steinerNodes'. 8 June 2018.**/
+        for (Node n : steinerNodes)
+            if (n instanceof ColumnNode) {
+                ColumnNode c = (ColumnNode)n;
+                columnNodes.add(c);/**Here, we get the steiner node in the merged graph. 8 June 2018.**/
+                mappingToSourceColumns.put(c, c);//what's mean for this code???
+            }
+
+        System.out.println("输出mappingToSourceColumns大小："+mappingToSourceColumns.size());
+        for(ColumnNode node: mappingToSourceColumns.keySet()){
+            System.out.println(node.getColumnName() + "----" + mappingToSourceColumns.get(node).getColumnName());
+        }
+
+        List<SemanticType> allCandidateSemanticTypes;
+        List<String> semanticTypeStringList;
+        for (Node n : steinerNodes) {
+            if (n instanceof ColumnNode) {
+                allCandidateSemanticTypes = new ArrayList<SemanticType>();
+                semanticTypeStringList = new ArrayList<String>();
+                ColumnNode steinerNode = (ColumnNode)n;
+
+                //if useCandidateTypes == true, obtain the candidate semantic types
+                if(useCandidateTypes){
+                    List<SemanticType> candidateSemanticTypes2 = getCandidateSteinerSets(steinerNode, false, numberOfCandidates);
+                    Double minScore = 1.0;
+                    if(candidateSemanticTypes2.size()>0){
+                        for(SemanticType semanticType: candidateSemanticTypes2){
+                            if(semanticTypeStringList.contains(semanticType.getDomain().getUri() + semanticType.getType().getUri()))
+                                continue;
+                            if(semanticType.getConfidenceScore() < minScore)
+                                minScore = semanticType.getConfidenceScore();
+                            semanticTypeStringList.add(semanticType.getDomain().getUri() + semanticType.getType().getUri());
+                            allCandidateSemanticTypes.add(semanticType);
+                        }
+                    }
+                    List<SemanticType> correctSemanticTypes = getCandidateSteinerSets(steinerNode, true, numberOfCandidates);
+                    SemanticType correctSemanticType = correctSemanticTypes.get(0);
+                    if(allCandidateSemanticTypes.size() > 0){
+                        if(!semanticTypeStringList.contains(correctSemanticType.getDomain().getUri() + correctSemanticType.getType().getUri())) {
+                            correctSemanticType.setConfidenceScore(minScore);
+                            allCandidateSemanticTypes.add(correctSemanticType);
+                        }
+                    }
+                    else {
+                        allCandidateSemanticTypes.add(correctSemanticTypes.get(0));
+                    }
+                }
+                else{
+                    //only obtain the correct semantic type
+                    List<SemanticType> candidateSemanticTypes = getCandidateSteinerSets(steinerNode, useCorrectTypes, numberOfCandidates);
+                    allCandidateSemanticTypes.add(candidateSemanticTypes.get(0));
+                }
+                assert allCandidateSemanticTypes.size() < 6: "allCandidateSemanticTypes.size > 5";
+                addSteinerNodeToTheGraph(steinerNode, allCandidateSemanticTypes);
+            }
+        }
+
+        /**注释3.30**/
+        Set<Node> sn = new HashSet<Node>(steinerNodes);
+        List<DirectedWeightedMultigraph<Node, LabeledLink>> topKSteinerTrees;
+        if (this.graphBuilder instanceof GraphBuilderTopK) {
+
+            /**Get the top k Steiner Trees. 22 May 2018.**/
+            int k = modelingConfiguration.getTopKSteinerTree();
+            System.out.println("输出getTopKSteinerTree时的k值："+k);///////////////
+
+            topKSteinerTrees =  ((GraphBuilderTopK)this.graphBuilder).getTopKSteinerTrees(sn, k, null, null, false);
+        }
+        else
+        {
+            topKSteinerTrees = new LinkedList<DirectedWeightedMultigraph<Node, LabeledLink>>();
+            SteinerTree steinerTree = new SteinerTree(
+                    new AsUndirectedGraph<Node, DefaultLink>(this.graphBuilder.getGraph()), Lists.newLinkedList(sn));
+            WeightedMultigraph<Node, DefaultLink> t = steinerTree.getDefaultSteinerTree();
+            TreePostProcess treePostProcess = new TreePostProcess(this.graphBuilder, t);
+            if (treePostProcess.getTree() != null)
+                topKSteinerTrees.add(treePostProcess.getTree());
+        }
+
+//		System.out.println(GraphUtil.labeledGraphToString(treePostProcess.getTree()));
+
+//		logger.info("END ...");
+
+        /**循环遍历,将得到的tree转变为semantic model,进而转变为sortedsemanticmodel,添加到sortedsemanticmodel列表中**/
+        for (DirectedWeightedMultigraph<Node, LabeledLink> tree: topKSteinerTrees) {
+            if (tree != null) {
+//					System.out.println();
+                SemanticModel sm = new SemanticModel(new RandomGUID().toString(),
+                        tree,
+                        columnNodes,
+                        mappingToSourceColumns
+                );
+                SortableSemanticModel sortableSemanticModel =
+                        new SortableSemanticModel(sm, false);
+                sortableSemanticModels.add(sortableSemanticModel);
+
+//					System.out.println(GraphUtil.labeledGraphToString(sm.getGraph()));
+//					System.out.println(sortableSemanticModel.getLinkCoherence().printCoherenceList());
+            }
+        }
+
+        Collections.sort(sortableSemanticModels);
+        int count = Math.min(sortableSemanticModels.size(), modelingConfiguration.getNumCandidateMappings());
+        logger.info("results are ready ...");
+//		sortableSemanticModels.get(0).print();
+        return sortableSemanticModels.subList(0, count);
+        /**注释3.30**/
+//        return null;
+    }
+
     /**Compute the Steiner tree for a single table. 17 May 2018.**/
     public List<SortableSemanticModel> hypothesize(boolean useCorrectTypes, int numberOfCandidates) throws Exception {
 
@@ -608,8 +734,8 @@ public class ModelLearner_KnownModels4 {
 //        return null;
     }
 
-    //根据useCorrectTypes添加斯坦纳树nodes及links
-    public List<SortableSemanticModel> hypothesize2(boolean useCorrectTypes, int numberOfCandidates) throws Exception {
+//    根据useCorrectTypes添加斯坦纳树nodes及links
+    public List<SortableSemanticModel> hypothesize2(boolean useCorrectTypes, int numberOfCandidates, boolean useCandidateTypes) throws Exception {
 
         ModelingConfiguration modelingConfiguration = ModelingConfigurationRegistry.getInstance().getModelingConfiguration(ontologyManager.getContextId());
         List<SortableSemanticModel> sortableSemanticModels = new ArrayList<SortableSemanticModel>();
@@ -623,23 +749,48 @@ public class ModelLearner_KnownModels4 {
         List<ColumnNode> columnNodes = new LinkedList<ColumnNode>();
 
         /**The column nodes in the new source is saved in 'steinerNodes'. 8 June 2018.**/
-        for (Node n : steinerNodes)
+        for (Node n : steinerNodes) {
             if (n instanceof ColumnNode) {
-                ColumnNode c = (ColumnNode)n;
+                ColumnNode c = (ColumnNode) n;
                 columnNodes.add(c);/**Here, we get the steiner node in the merged graph. 8 June 2018.**/
                 mappingToSourceColumns.put(c, c);//what's mean for this code???
             }
+        }
 
         System.out.println("输出mappingToSourceColumns大小："+mappingToSourceColumns.size());
         for(ColumnNode node: mappingToSourceColumns.keySet()){
             System.out.println(node.getColumnName() + "----" + mappingToSourceColumns.get(node).getColumnName());
         }
 
+        List<SemanticType> allCandidateSemanticTypes;
+        List<String> semanticTypeStringList;
         for (Node n : steinerNodes) {
             if (n instanceof ColumnNode) {
+                allCandidateSemanticTypes = new ArrayList<SemanticType>();
+                semanticTypeStringList = new ArrayList<String>();
                 ColumnNode steinerNode = (ColumnNode)n;
                 List<SemanticType> candidateSemanticTypes = getCandidateSteinerSets(steinerNode, useCorrectTypes, numberOfCandidates);
-                addSteinerNodeToTheGraph(steinerNode, candidateSemanticTypes);
+                for(SemanticType semanticType: candidateSemanticTypes){
+                    if(semanticTypeStringList.contains(semanticType.getDomain().getUri()+semanticType.getType().getUri()))
+                        continue;
+                    semanticTypeStringList.add(semanticType.getDomain().getUri()+semanticType.getType().getUri());
+                    allCandidateSemanticTypes.add(semanticType);
+                }
+//                allCandidateSemanticTypes.addAll(candidateSemanticTypes);
+                if(useCandidateTypes) {
+                    List<SemanticType> candidateSemanticTypes2 = getCandidateSteinerSets(steinerNode, false, numberOfCandidates);
+                    if(candidateSemanticTypes2.size()>0) {
+                        for (SemanticType semanticType : candidateSemanticTypes2) {
+                            if (semanticTypeStringList.contains(semanticType.getDomain().getUri() + semanticType.getType().getUri()))
+                                continue;
+                            semanticTypeStringList.add(semanticType.getDomain().getUri() + semanticType.getType().getUri());
+                            allCandidateSemanticTypes.add(semanticType);
+                        }
+//                    allCandidateSemanticTypes.addAll(candidateSemanticTypes2);
+                    }
+                }
+                assert allCandidateSemanticTypes.size() < 6: "allCandidateSemanticTypes.size > 5";
+                addSteinerNodeToTheGraph(steinerNode, allCandidateSemanticTypes);
             }
         }
 
@@ -770,11 +921,11 @@ public class ModelLearner_KnownModels4 {
             return ;
         }
 
-        System.out.println("完成addNode(steinerNode)");
+        System.out.println("add steinerNode:"+steinerNode.getColumnName()+" success!");
 
         if (semanticTypes == null) {
             logger.error("semantic type is null.");
-            System.out.println("semantic type is null.");
+            System.out.println("semantic type is null while adding steinerNode:"+steinerNode.getColumnName()+" .");
             return;
         }
 
@@ -809,8 +960,10 @@ public class ModelLearner_KnownModels4 {
             Set<Node> nodesWithSameUriOfDomain = this.graphBuilder.getUriToNodesMap().get(domainUri);
             if (nodesWithSameUriOfDomain == null || nodesWithSameUriOfDomain.isEmpty()) {
                 System.out.println("进入到nodesWithSameUriOfDomain == null阶段，需添加internalnode");
+                ((ColumnNode) this.graphBuilder.getIdToNodeMap().get(steinerNode.getId())).setUseOntInternalNodes(true);
                 String nodeId = nodeIdFactory.getNodeId(domainUri);
                 Node source = new InternalNode(nodeId, new Label(domainUri));
+                ((InternalNode) source).setUseOntPaths(true);
                 if (!this.graphBuilder.addNodeAndUpdate(source, null)) continue;
                 String linkId = LinkIdFactory.getLinkId(propertyUri, source.getId(), steinerNode.getId());
                 LabeledLink link = new DataPropertyLink(linkId, new Label(propertyUri));
@@ -886,6 +1039,239 @@ public class ModelLearner_KnownModels4 {
     }
 
 
+    /**semantic modeling using karma 2023/07/03**/
+    public static List<SortableSemanticModel> KarmaForSemanticModeling(int newSourceIndex) throws Exception {
+        ServletContextParameterMap contextParameters = ContextParametersRegistry.getInstance().getDefault();
+
+        /**Import all of the semantic models, including new data source and training data source, into Karma. 14 Aug 2018**/
+        if(semanticModels == null) {
+            semanticModels = ModelReader.importSemanticModelsFromJsonFiles(Params.ROOT_DIR + "models-json-SemanticLabeling-20220430", Params.MODEL_MAIN_FILE_EXT);
+//            semanticModels = ModelReader.importSemanticModelsFromJsonFiles(Params.ROOT_DIR + "models-json-20220314", Params.MODEL_MAIN_FILE_EXT);
+//            semanticModels = ModelReader.importSemanticModelsFromJsonFiles(Params.ROOT_DIR_2023 + "models-json-20230704-karma", Params.MODEL_MAIN_FILE_EXT);
+//            semanticModels = ModelReader.importSemanticModelsFromJsonFiles("E:\\D_Drive\\ASM\\DataSets\\museum-29-crm\\models-json", Params.MODEL_MAIN_FILE_EXT);
+
+        }
+        if(semanticModelsWithCandidateSemanticTypes == null)
+            semanticModelsWithCandidateSemanticTypes = ModelReader.importSemanticModelsFromJsonFiles(Params.ROOT_DIR_2023 + "labeled-models-json-karma-20230704", Params.MODEL_MAIN_FILE_EXT);
+
+
+        List<SemanticModel> trainingData = new ArrayList<SemanticModel>(semanticModels);//要保存training SemanticModel的列表
+
+        /**begin to import the common data model (CDM)**/
+        if(ontologyManager == null) {
+            ontologyManager = new OntologyManager(contextParameters.getId());
+
+            File oFile = new File(Params.ROOT_DIR+"ecrm_update(20190521).owl");
+
+            ontologyManager.doImport(oFile, "UTF-8");
+            ontologyManager.updateCache();
+            System.out.println("2.ontologyManager："+ontologyManager.getObjectProperties().size());
+        }
+
+        ModelLearningGraph modelLearningGraph = null;
+
+        ModelLearner_KnownModels4 modelLearner;
+
+        boolean iterativeEvaluation = false;
+        boolean useCorrectType = false;
+        boolean useCandidateTypes = true;
+
+        int numberOfCandidates = 4;
+        int numberOfKnownModels;
+
+
+        /**Get the semantic model of the new data source
+         根据传入的newSourceIndex索引，取出要预测的新语义模型**/
+//        SemanticModel newSource = semanticModelsWithCandidateSemanticTypes.get(newSourceIndex);
+        SemanticModel newSource = semanticModels.get(newSourceIndex);
+
+
+        logger.info("======================================================");
+        logger.info(newSource.getName() + "(#attributes:" + newSource.getColumnNodes().size() + ")");//获取新源的数据节点
+        System.out.println(newSource.getName() + "(#attributes:" + newSource.getColumnNodes().size() + ")");
+        logger.info("======================================================");
+
+
+        /**obtain all of the training data set**/
+        trainingData.remove(newSourceIndex);
+        numberOfKnownModels = trainingData.size();
+        System.out.println("numberOfKnownModels:"+numberOfKnownModels);
+
+        /**Until now, the 'userSemanticTypes' and 'learnedSemanticTypes' are still null. 18 June 2018.**/
+        modelLearningGraph = (ModelLearningGraphCompact)ModelLearningGraph.getEmptyInstance(ontologyManager, ModelLearningGraphType.Compact);
+        System.out.println("modelLearningGraph.edgeset:" + modelLearningGraph.getGraphBuilder().getGraph().edgeSet().size());
+        System.out.println("modelLearningGraph.vertexset:" + modelLearningGraph.getGraphBuilder().getGraph().vertexSet().size());
+
+
+        /**把新的语义模型看为要预测数据源的正确语义模型**/
+        SemanticModel correctModel = newSource;
+
+        /**Get the Steiner nodes (boxes) from the new source. 8 June 2018.
+         获取新源正确语义模型的斯坦纳树节点（数据节点）**/
+        List<ColumnNode> columnNodes = correctModel.getColumnNodes();
+
+        /**将获取的斯坦纳树节点（数据节点）以Node的形式保存**/
+        List<Node> steinerNodes = new LinkedList<Node>(columnNodes);//get steiner node. very important. 19 Aug 2018
+
+        modelLearner = new ModelLearner_KnownModels4(ontologyManager, steinerNodes);
+        System.out.println("modelLearner.SteinerNodes.size:" + modelLearner.getSteinerNodes().size());
+
+        System.out.println("开始计时");
+        long start = System.currentTimeMillis();
+        for (SemanticModel sm : trainingData) {
+//            modelLearningGraph.addModelAndUpdate2016(sm, PatternWeightSystem.JWSPaperFormula);//目前只是集成了已知的语义模型
+            modelLearningGraph.addModelAndUpdate2016(sm, PatternWeightSystem.JWSPaperFormula);
+            System.out.println("modelLearningGraph nodes size in each loop："+modelLearningGraph.getGraphBuilder().getGraph().vertexSet().size());
+            System.out.println("modelLearningGraph edges size in each loop："+modelLearningGraph.getGraphBuilder().getGraph().edgeSet().size());
+        }
+
+        modelLearner = new ModelLearner_KnownModels4(modelLearningGraph.getGraphBuilder(), steinerNodes);
+//        System.out.println("输出modelLearner的节点数："+modelLearner.graphBuilder.getGraph().vertexSet().size());
+//        System.out.println("输出modelLearner的边数："+modelLearner.graphBuilder.getGraph().edgeSet().size());
+        modelLearner.graphBuilder = modelLearningGraph.getGraphBuilder();
+        modelLearner.nodeIdFactory = modelLearner.graphBuilder.getNodeIdFactory();
+
+        /**Compute Steiner tree for a single table. 17 May 2018. //Generating and Ranking Semantic Models (using karma's metrics) **/
+
+        List<SortableSemanticModel> hypothesisList = modelLearner.hypothesize(useCorrectType, numberOfCandidates);
+
+//        List<SortableSemanticModel> hypothesisList = modelLearner.hypothesizeKarma(useCorrectType, numberOfCandidates, useCandidateTypes);
+        System.out.println(modelLearner.graphBuilder.getGraph().edgeSet().size());
+        System.out.println(modelLearner.graphBuilder.getGraph().vertexSet().size());
+
+
+        /**测试inverse property是否存在**/
+//        ontModel.read("file:E:\\D_Drive\\ASM\\DataSets\\museum-29-crm\\ecrm_update(20190521).owl");
+//        System.out.println(+modelLearner.graphBuilder.getOntologyManager().newgetInverseOfProperty("http://erlangen-crm.org/current/P138i_has_representation",ontModel).getUri());
+        /**测试inverse property是否存在**/
+
+        /**7.18 测试是否存在某一条link**/
+//        int isexit = 0;
+//        for(DefaultLink link: modelLearner.graphBuilder.getGraph().edgeSet()){
+//            if(link.getSource().getId().equals("http://erlangen-crm.org/current/E22_Man-Made_Object1")&&(link.getTarget().getId().equals("http://erlangen-crm.org/current/E31_Document1"))){
+//                isexit = 1;
+//                System.out.println("能找到link");
+//                System.out.println("输出link.getUri:" + link.getUri());
+////                break;
+//            }
+////            if((link.getUri().equals("http://erlangen-crm.org/current/P70i_is_documented_in"))){
+////                isexit = 1;
+////                System.out.println("能找到link");
+////                break;
+////            }
+//        }
+//        if(isexit == 1){
+//            System.out.println("能找到link");
+//        }
+//        else{
+//            System.out.println("找不到link");
+//        }
+        /**7.18 测试是否存在某一条link**/
+
+        /**保存integration graph**/
+        GraphVizUtil.exportJGraphToGraphviz(modelLearner.graphBuilder.getGraph(),
+                "integration_graph",
+                false,
+                GraphVizLabelType.LocalId,
+                GraphVizLabelType.LocalUri,
+                false,
+                true,
+                "E:\\D_Drive\\ASM\\DataSets\\museum-29-crm\\alignment-graph\\final-integration-graph\\" + newSource.getName() + ".integration-graph.graph.json" + ".dot");
+
+        /**4.6 9：10**/
+
+        long elapsedTimeMillis = System.currentTimeMillis() - start;
+        float elapsedTimeSec = elapsedTimeMillis/1000F;
+
+        System.out.println("time: " + elapsedTimeSec);
+
+        int cutoff = 20;//ModelingConfiguration.getMaxCandidateModels();
+        List<SortableSemanticModel> topHypotheses = null;
+        if (hypothesisList != null) {//hypothesisList获取得到所有可能的候选semantic models；topHypotheses保存从hypothesisList中获取得到的前cutoff个senmantic models
+            topHypotheses = hypothesisList.size() > cutoff ?
+                    hypothesisList.subList(0, cutoff) :
+                    hypothesisList;
+        }
+
+        Map<String, SemanticModel> models = new TreeMap<String, SemanticModel>();
+
+        ModelEvaluation me;
+        models.put("1-correct model", correctModel);
+        Double best_f1_score = 0.0;
+        Double precision = 0.0;
+        Double recall = 0.0;
+        if (topHypotheses != null) {
+            for (int k = 0; k < topHypotheses.size(); k++) {
+
+                SortableSemanticModel m = topHypotheses.get(k);
+
+//                me = m.evaluate(correctModel);
+                me = m.new_evaluate(correctModel);
+
+                Double f1_score = 2*(me.getPrecision()*me.getRecall())/(me.getPrecision()+me.getRecall());
+                if(f1_score > best_f1_score){
+                    best_f1_score = f1_score;
+                    precision = me.getPrecision();
+                    recall = me.getRecall();
+                }
+
+                String label = "candidate " + k + "\n" +
+                        "link coherence:" + (m.getLinkCoherence() == null ? "" : m.getLinkCoherence().getCoherenceValue()) + "\n";
+                label += (m.getSteinerNodes() == null || m.getSteinerNodes().getCoherence() == null) ?
+                        "" : "node coherence:" + m.getSteinerNodes().getCoherence().getCoherenceValue() + "\n";
+                label += "confidence:" + m.getConfidenceScore() + "\n";
+                label += m.getSteinerNodes() == null ? "" : "mapping score:" + m.getSteinerNodes().getScore() + "\n";
+                label +=
+                        "cost:" + roundDecimals(m.getCost(), 6) + "\n" +
+                                //								"-distance:" + me.getDistance() +
+                                "-precision:" + me.getPrecision() +
+                                "-recall:" + me.getRecall();
+
+                models.put(label, m);
+
+                if (k == 0) { // first rank model
+                    System.out.println("number of known models: " + numberOfKnownModels +
+                            ", precision: " + me.getPrecision() +
+                            ", recall: " + me.getRecall() +
+                            ", time: " + elapsedTimeSec);
+                    logger.info("number of known models: " + numberOfKnownModels +
+                            ", precision: " + me.getPrecision() +
+                            ", recall: " + me.getRecall() +
+                            ", time: " + elapsedTimeSec);
+
+                    String s = "";
+                    if (iterativeEvaluation) {
+//                        if (resultsArray[numberOfKnownModels + 2].length() > 0)
+//                            resultsArray[numberOfKnownModels + 2].append(" \t ");
+//                        resultsArray[numberOfKnownModels + 2].append(s);
+                    } else {
+                        s = newSource.getName() + "," + me.getPrecision() + "," + me.getRecall() + "," + elapsedTimeSec;
+                        System.out.println(s);
+                    }
+                }
+            }
+        }
+        System.out.println("best precision: " + precision);
+        System.out.println("best recall: " + recall);
+        System.out.println("best f1_score: " + best_f1_score);
+
+        String outputPath = Params.OUTPUT_DIR;
+        String outName = !iterativeEvaluation?
+                outputPath + semanticModels.get(newSourceIndex).getName() + Params.GRAPHVIS_OUT_DETAILS_FILE_EXT :
+                outputPath + semanticModels.get(newSourceIndex).getName() + ".knownModels=" + numberOfKnownModels + Params.GRAPHVIS_OUT_DETAILS_FILE_EXT;
+
+        GraphVizUtil.exportSemanticModelsToGraphviz(
+                models,
+                newSource.getName(),
+                outName,
+                GraphVizLabelType.LocalId,
+                GraphVizLabelType.LocalUri,
+                true,
+                true);
+        return hypothesisList;
+    }
+
+
     /**Get candidate semantic models for new data source.
      * @return candidate semantic models (Steiner trees) for the new data source.
      * */
@@ -901,7 +1287,8 @@ public class ModelLearner_KnownModels4 {
 
         /**Import all of the semantic models, including new data source and training data source, into Karma. 14 Aug 2018**/
         if(semanticModels == null) {
-            semanticModels = ModelReader.importSemanticModelsFromJsonFiles(Params.ROOT_DIR + "models-json-SemanticLabeling-20220430", Params.MODEL_MAIN_FILE_EXT);
+//            semanticModels = ModelReader.importSemanticModelsFromJsonFiles(Params.ROOT_DIR + "models-json-SemanticLabeling-20220430", Params.MODEL_MAIN_FILE_EXT);
+            semanticModels = ModelReader.importSemanticModelsFromJsonFiles(Params.ROOT_DIR + "models-json-20220314", Params.MODEL_MAIN_FILE_EXT);
         }
 
         /**begin to import the common data model (CDM)**/
@@ -1176,6 +1563,7 @@ public class ModelLearner_KnownModels4 {
 
         boolean iterativeEvaluation = false;
         boolean useCorrectType = true;
+        boolean useCandidateTypes = false;
         boolean randomModel = false;
 
         int numberOfCandidates = 4;
@@ -1231,7 +1619,7 @@ public class ModelLearner_KnownModels4 {
         modelLearner.graphBuilder = modelLearningGraph.getGraphBuilder();
         modelLearner.nodeIdFactory = modelLearner.graphBuilder.getNodeIdFactory();
 
-        modelLearner.hypothesize2(useCorrectType, numberOfCandidates);
+        modelLearner.hypothesize2(useCorrectType, numberOfCandidates, useCandidateTypes);
 
         System.out.println(modelLearner.graphBuilder.getGraph().edgeSet().size());
         System.out.println(modelLearner.graphBuilder.getGraph().vertexSet().size());
@@ -1239,7 +1627,364 @@ public class ModelLearner_KnownModels4 {
         return modelLearner.graphBuilder.getGraph();
     }
 
-    /**5.20**/
+    /**2023/04/02**/
+    public static DirectedWeightedMultigraph<Node, DefaultLink> getIntegrationGraphWithCandidateSemanticTypes(SemanticModel predictSemanticModel, List<SemanticModel> trainSemanticModels) throws Exception {
+//        String integrationGraphPath = "D:\\ASM\\CRM\\alignment-graph\\"; //这里是保存integration graph的路径
+//        String integrationGraphName = integrationGraphPath + predictSemanticModel.getName() + Params.GRAPH_JSON_FILE_EXT;
+
+        ModelLearningGraph modelLearningGraph = null;
+
+        ModelLearner_KnownModels4 modelLearner;
+
+        boolean useCorrectType = true;
+        boolean useCandidateTypes = false;
+        boolean randomModel = false;
+
+        int numberOfCandidates = 4;
+        int numberOfKnownModels;
+        String filePath = Params.RESULTS_DIR + "temp/";
+        String filename = "";
+
+
+        /**import ontology**/
+        ServletContextParameterMap contextParameters = ContextParametersRegistry.getInstance().getDefault();
+        if(ontologyManager == null) {
+            ontologyManager = new OntologyManager(contextParameters.getId());
+            File oFile = new File(Params.ROOT_DIR+"ecrm_update(20190521).owl");
+
+            ontologyManager.doImport(oFile, "UTF-8");
+            ontologyManager.updateCache();
+            System.out.println("import ontology-objectproperties.size："+ontologyManager.getObjectProperties().size());
+            System.out.println("import ontology-dataproperties.size："+ontologyManager.getDataProperties().size());
+        }
+
+
+        filename += "results";
+        filename += useCorrectType ? "-correct types":"-k=" + numberOfCandidates;
+        filename += randomModel ? "-random":"";
+//        filename += iterativeEvaluation ? "-iterative":"";
+        filename += ".csv";
+
+        // print attributes about predict semantic model
+        logger.info("======================================================");
+        logger.info(predictSemanticModel.getName() + "(#predict semantic model attributes:" + predictSemanticModel.getColumnNodes().size() + ")");
+        System.out.println(predictSemanticModel.getName() + "(#predict semantic model attributes:" + predictSemanticModel.getColumnNodes().size() + ")");
+        logger.info("======================================================");
+
+        /**initial an empty modelLearningGraph**/
+        modelLearningGraph = (ModelLearningGraphCompact)ModelLearningGraph.getEmptyInstance(ontologyManager, ModelLearningGraphType.Compact);
+        System.out.println("modelLearningGraph.edgeset:" + modelLearningGraph.getGraphBuilder().getGraph().edgeSet().size());
+        System.out.println("modelLearningGraph.vertexset:" + modelLearningGraph.getGraphBuilder().getGraph().vertexSet().size());
+
+
+        /**Get the Steiner nodes (column nodes/boxes) from the predict semantic model**/
+        List<ColumnNode> columnNodes = predictSemanticModel.getColumnNodes();
+        /**get steiner nodes. very important**/
+        List<Node> steinerNodes = new LinkedList<Node>(columnNodes);
+
+        modelLearner = new ModelLearner_KnownModels4(ontologyManager, steinerNodes);
+        System.out.println("modelLearner.SteinerNodes.size:" + modelLearner.getSteinerNodes().size());
+
+        long start = System.currentTimeMillis();
+        int index = 0;
+        String columnNodeId = null;
+        for (SemanticModel sm : trainSemanticModels) {
+//            if(++index > 1){ //s02 s03对应的语义模型为已知的语义模型
+//                break;
+//            }
+
+            System.out.println("sm nodes size in each loop:" + sm.getGraph().vertexSet().size());
+            modelLearningGraph.addModelAndUpdate(sm, PatternWeightSystem.JWSPaperFormula);
+            System.out.println("modelLearningGraph nodes size in each loop："+modelLearningGraph.getGraphBuilder().getGraph().vertexSet().size());
+            System.out.println("modelLearningGraph edges size in each loop："+modelLearningGraph.getGraphBuilder().getGraph().edgeSet().size());
+
+        }
+
+        modelLearner = new ModelLearner_KnownModels4(modelLearningGraph.getGraphBuilder(), steinerNodes);
+        modelLearner.graphBuilder = modelLearningGraph.getGraphBuilder();
+        modelLearner.nodeIdFactory = modelLearner.graphBuilder.getNodeIdFactory();
+
+        modelLearner.hypothesize2(useCorrectType, numberOfCandidates, useCandidateTypes);
+
+        System.out.println(modelLearner.graphBuilder.getGraph().edgeSet().size());
+        System.out.println(modelLearner.graphBuilder.getGraph().vertexSet().size());
+
+
+        // 保存integration graph
+        try {
+            GraphVizUtil.exportJGraphToGraphviz(modelLearningGraph.getGraphBuilder().getGraph(),"integration_graph",false,GraphVizLabelType.LocalId,
+                    GraphVizLabelType.LocalUri, true, true, "D:\\ASM\\CRM\\alignment-graph\\integration-graph-2" + Params.GRAPHVIS_MAIN_FILE_EXT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        List<Node> internal_Nodes = new ArrayList<Node>();
+        List<Node> column_Nodes = new ArrayList<Node>();
+        List<Node> root_Nodes = new ArrayList<Node>();
+        boolean isRootFlag = true;
+
+        for(Node node:modelLearner.graphBuilder.getGraph().vertexSet()){
+            if(node instanceof InternalNode){
+                isRootFlag = true;
+                internal_Nodes.add(node);
+                for(DefaultLink link:modelLearner.graphBuilder.getGraph().edgeSet()){
+                    if(link.getTarget().equals(node)){
+                        isRootFlag = false;
+                        break;
+                    }
+                }
+                if(isRootFlag){
+                    root_Nodes.add(node);
+                }
+            }
+            else{
+                column_Nodes.add(node);
+            }
+        }
+        System.out.println("graph internal nodes:" + internal_Nodes.size());
+        System.out.println("graph column nodes:" + column_Nodes.size());
+        System.out.println("graph root nodes:" + root_Nodes.size());
+
+        return modelLearner.graphBuilder.getGraph();
+    }
+
+    /**2023/04/02**/
+    public static ModelLearningGraph getIntegrationGraphWithCandidateSemanticTypesForEmbedding(List<SemanticModel> semanticModels, List<SemanticModel> trainSemanticModels, boolean useCandidateTypes) throws Exception {
+//        String integrationGraphPath = "D:\\ASM\\CRM\\alignment-graph\\"; //这里是保存integration graph的路径
+//        String integrationGraphName = integrationGraphPath + predictSemanticModel.getName() + Params.GRAPH_JSON_FILE_EXT;
+
+        ModelLearningGraph modelLearningGraph = null;
+
+        ModelLearner_KnownModels4 modelLearner;
+
+        boolean useCorrectType = true;
+
+        int numberOfCandidates = 4;
+
+        List<ColumnNode> columnNodes = new ArrayList<ColumnNode>();
+
+
+        /**import ontology**/
+        ServletContextParameterMap contextParameters = ContextParametersRegistry.getInstance().getDefault();
+        if(ontologyManager == null) {
+            ontologyManager = new OntologyManager(contextParameters.getId());
+            File oFile = new File(Params.ROOT_DIR+"ecrm_update(20190521).owl");
+
+            ontologyManager.doImport(oFile, "UTF-8");
+            ontologyManager.updateCache();
+            System.out.println("import ontology-objectproperties.size："+ontologyManager.getObjectProperties().size());
+            System.out.println("import ontology-dataproperties.size："+ontologyManager.getDataProperties().size());
+        }
+
+
+//        // print attributes about predict semantic model
+//        logger.info("======================================================");
+//        logger.info(predictSemanticModel.getName() + "(#predict semantic model attributes:" + predictSemanticModel.getColumnNodes().size() + ")");
+//        System.out.println(predictSemanticModel.getName() + "(#predict semantic model attributes:" + predictSemanticModel.getColumnNodes().size() + ")");
+//        logger.info("======================================================");
+
+        /**initial an empty modelLearningGraph**/
+        modelLearningGraph = (ModelLearningGraphCompact)ModelLearningGraph.getEmptyInstance(ontologyManager, ModelLearningGraphType.Compact);
+        System.out.println("modelLearningGraph.edgeset:" + modelLearningGraph.getGraphBuilder().getGraph().edgeSet().size());
+        System.out.println("modelLearningGraph.vertexset:" + modelLearningGraph.getGraphBuilder().getGraph().vertexSet().size());
+
+
+        /**Get the Steiner nodes (column nodes/boxes) from all semantic models**/
+        for(SemanticModel sm: semanticModels) {
+            columnNodes.addAll(sm.getColumnNodes());
+        }
+        System.out.println("getIntegrationGraphWithCandidateSemanticTypesForEmbedding columnNodes size:" + columnNodes.size());
+
+        /**get steiner nodes. very important**/
+        List<Node> steinerNodes = new LinkedList<Node>(columnNodes);
+
+        modelLearner = new ModelLearner_KnownModels4(ontologyManager, steinerNodes);
+        System.out.println("modelLearner.SteinerNodes.size:" + modelLearner.getSteinerNodes().size());
+
+        long start = System.currentTimeMillis();
+        int index = 0;
+        String columnNodeId = null;
+        for (SemanticModel sm : trainSemanticModels) {
+//            if(++index > 1){ //s02 s03对应的语义模型为已知的语义模型
+//                break;
+//            }
+
+            System.out.println("sm nodes size in each loop:" + sm.getGraph().vertexSet().size());
+            modelLearningGraph.addModelAndUpdate(sm, PatternWeightSystem.JWSPaperFormula);
+            System.out.println("modelLearningGraph nodes size in each loop："+modelLearningGraph.getGraphBuilder().getGraph().vertexSet().size());
+            System.out.println("modelLearningGraph edges size in each loop："+modelLearningGraph.getGraphBuilder().getGraph().edgeSet().size());
+
+        }
+
+        modelLearner = new ModelLearner_KnownModels4(modelLearningGraph.getGraphBuilder(), steinerNodes);
+        modelLearner.graphBuilder = modelLearningGraph.getGraphBuilder();
+        modelLearner.nodeIdFactory = modelLearner.graphBuilder.getNodeIdFactory();
+
+        modelLearner.hypothesize2(useCorrectType, numberOfCandidates, useCandidateTypes);
+
+
+        System.out.println(modelLearner.graphBuilder.getGraph().edgeSet().size());
+        System.out.println(modelLearner.graphBuilder.getGraph().vertexSet().size());
+
+        System.out.println("modelLearningGraph:"+modelLearningGraph.getGraphBuilder().getGraph().edgeSet().size());
+        System.out.println("modelLearningGraph:"+modelLearningGraph.getGraphBuilder().getGraph().vertexSet().size());
+
+
+        // 保存integration graph
+        try {
+            GraphVizUtil.exportJGraphToGraphviz(modelLearningGraph.getGraphBuilder().getGraph(),"integration_graph",false,GraphVizLabelType.LocalId,
+                    GraphVizLabelType.LocalUri, true, true, "D:\\ASM\\CRM\\alignment-graph\\integration-graph-2" + Params.GRAPHVIS_MAIN_FILE_EXT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        List<Node> internal_Nodes = new ArrayList<Node>();
+        List<Node> column_Nodes = new ArrayList<Node>();
+        List<Node> root_Nodes = new ArrayList<Node>();
+        boolean isRootFlag = true;
+
+        for(Node node:modelLearner.graphBuilder.getGraph().vertexSet()){
+            if(node instanceof InternalNode){
+                isRootFlag = true;
+                internal_Nodes.add(node);
+                for(DefaultLink link:modelLearner.graphBuilder.getGraph().edgeSet()){
+                    if(link.getTarget().equals(node)){
+                        isRootFlag = false;
+                        break;
+                    }
+                }
+                if(isRootFlag){
+                    root_Nodes.add(node);
+                }
+            }
+            else{
+                column_Nodes.add(node);
+            }
+        }
+        System.out.println("graph internal nodes:" + internal_Nodes.size());
+        System.out.println("graph column nodes:" + column_Nodes.size());
+        System.out.println("graph root nodes:" + root_Nodes.size());
+
+        return modelLearningGraph;
+    }
+
+    /**2023/04/02**/
+    public static DirectedWeightedMultigraph<Node, DefaultLink> getIntegrationGraphWithCandidateSemanticTypesForTraining(SemanticModel predictSemanticModel, List<SemanticModel> trainSemanticModels) throws Exception {
+//        String integrationGraphPath = "D:\\ASM\\CRM\\alignment-graph\\"; //这里是保存integration graph的路径
+//        String integrationGraphName = integrationGraphPath + predictSemanticModel.getName() + Params.GRAPH_JSON_FILE_EXT;
+
+        ModelLearningGraph modelLearningGraph = null;
+
+        ModelLearner_KnownModels4 modelLearner;
+
+        /**useCorrectType=true, useCandidateTypes=true: consider all semantic types
+         * useCorrectType=true, useCandidateTypes=false: only consider correct semantic types
+         * useCorrectType=false, useCandidateTypes=false: only consider candidate semantic types**/
+        boolean useCorrectType = true;
+        boolean useCandidateTypes = true;
+
+        int numberOfCandidates = 4;
+
+        /**import ontology**/
+        ServletContextParameterMap contextParameters = ContextParametersRegistry.getInstance().getDefault();
+        if(ontologyManager == null) {
+            ontologyManager = new OntologyManager(contextParameters.getId());
+            File oFile = new File(Params.ROOT_DIR+"ecrm_update(20190521).owl");
+//            File oFile = new File(Params.ROOT_DIR_2023_LINUX+"ecrm_update(20190521).owl");
+//            File oFile = new File(Params.EDM_ROOT_DIR_2023+"edm.owl");
+//            File oFile = new File(Params.EDM_ROOT_DIR_2023_LINUX+"edm.owl");
+
+            ontologyManager.doImport(oFile, "UTF-8");
+            ontologyManager.updateCache();
+            System.out.println("import ontology-objectproperties.size："+ontologyManager.getObjectProperties().size());
+            System.out.println("import ontology-dataproperties.size："+ontologyManager.getDataProperties().size());
+        }
+
+        // print attributes about predict semantic model
+        logger.info("======================================================");
+        logger.info(predictSemanticModel.getName() + "(#predict semantic model attributes:" + predictSemanticModel.getColumnNodes().size() + ")");
+        System.out.println(predictSemanticModel.getName() + "(#predict semantic model attributes:" + predictSemanticModel.getColumnNodes().size() + ")");
+        logger.info("======================================================");
+
+        /**initial an empty modelLearningGraph**/
+        modelLearningGraph = (ModelLearningGraphCompact)ModelLearningGraph.getEmptyInstance(ontologyManager, ModelLearningGraphType.Compact);
+        System.out.println("modelLearningGraph.edgeset:" + modelLearningGraph.getGraphBuilder().getGraph().edgeSet().size());
+        System.out.println("modelLearningGraph.vertexset:" + modelLearningGraph.getGraphBuilder().getGraph().vertexSet().size());
+
+
+        /**Get the Steiner nodes (column nodes/boxes) from the predict semantic model**/
+        List<ColumnNode> columnNodes = predictSemanticModel.getColumnNodes();
+        /**get steiner nodes. very important**/
+        List<Node> steinerNodes = new LinkedList<Node>(columnNodes);
+
+        modelLearner = new ModelLearner_KnownModels4(ontologyManager, steinerNodes);
+        System.out.println("modelLearner.SteinerNodes.size:" + modelLearner.getSteinerNodes().size());
+
+        long start = System.currentTimeMillis();
+        int index = 0;
+        String columnNodeId = null;
+        for (SemanticModel sm : trainSemanticModels) {
+//            if(++index > 1){ //s02 s03对应的语义模型为已知的语义模型
+//                break;
+//            }
+
+            System.out.println("sm nodes size in each loop:" + sm.getGraph().vertexSet().size());
+            modelLearningGraph.addModelAndUpdate(sm, PatternWeightSystem.JWSPaperFormula, false);
+            System.out.println("modelLearningGraph nodes size in each loop："+modelLearningGraph.getGraphBuilder().getGraph().vertexSet().size());
+            System.out.println("modelLearningGraph edges size in each loop："+modelLearningGraph.getGraphBuilder().getGraph().edgeSet().size());
+
+        }
+
+        modelLearner = new ModelLearner_KnownModels4(modelLearningGraph.getGraphBuilder(), steinerNodes);
+        modelLearner.graphBuilder = modelLearningGraph.getGraphBuilder();
+        modelLearner.nodeIdFactory = modelLearner.graphBuilder.getNodeIdFactory();
+
+        modelLearner.hypothesize2(useCorrectType, numberOfCandidates, useCandidateTypes);
+
+        System.out.println(modelLearner.graphBuilder.getGraph().edgeSet().size());
+        System.out.println(modelLearner.graphBuilder.getGraph().vertexSet().size());
+
+
+//        // 保存integration graph
+//        try {
+//            GraphVizUtil.exportJGraphToGraphviz(modelLearningGraph.getGraphBuilder().getGraph(),"integration_graph",false,GraphVizLabelType.LocalId,
+//                    GraphVizLabelType.LocalUri, true, true, "D:\\ASM\\CRM\\alignment-graph\\integration-graph-3" + Params.GRAPHVIS_MAIN_FILE_EXT);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+        List<Node> internal_Nodes = new ArrayList<Node>();
+        List<Node> column_Nodes = new ArrayList<Node>();
+        List<Node> root_Nodes = new ArrayList<Node>();
+        boolean isRootFlag = true;
+
+        for(Node node:modelLearner.graphBuilder.getGraph().vertexSet()){
+            if(node instanceof InternalNode){
+                isRootFlag = true;
+                internal_Nodes.add(node);
+                for(DefaultLink link:modelLearner.graphBuilder.getGraph().edgeSet()){
+                    if(link.getTarget().equals(node)){
+                        isRootFlag = false;
+                        break;
+                    }
+                }
+                if(isRootFlag){
+                    root_Nodes.add(node);
+                }
+            }
+            else{
+                column_Nodes.add(node);
+            }
+        }
+        System.out.println("graph internal nodes:" + internal_Nodes.size());
+        System.out.println("graph column nodes:" + column_Nodes.size());
+        System.out.println("graph root nodes:" + root_Nodes.size());
+
+        return modelLearner.graphBuilder.getGraph();
+    }
+
+
+    /**2022/05/20**/
     public static DirectedWeightedMultigraph<Node, DefaultLink> getIntegrationGraphPrediction(int newSourceIndex, Integer[] trainDataIndex) throws Exception {
 
         ServletContextParameterMap contextParameters = ContextParametersRegistry.getInstance().getDefault();
@@ -1271,6 +2016,7 @@ public class ModelLearner_KnownModels4 {
 
         boolean iterativeEvaluation = false;
         boolean useCorrectType = true;
+        boolean useCandidateTypes = false;
         boolean randomModel = false;
 
         int numberOfCandidates = 4;
@@ -1328,7 +2074,7 @@ public class ModelLearner_KnownModels4 {
         modelLearner.nodeIdFactory = modelLearner.graphBuilder.getNodeIdFactory();
 
         //添加斯坦纳树节点
-        modelLearner.hypothesize2(useCorrectType, numberOfCandidates);
+        modelLearner.hypothesize2(useCorrectType, numberOfCandidates, useCandidateTypes);
 
         System.out.println(modelLearner.graphBuilder.getGraph().edgeSet().size());
         System.out.println(modelLearner.graphBuilder.getGraph().vertexSet().size());
@@ -1825,6 +2571,7 @@ public class ModelLearner_KnownModels4 {
         ModelLearner_KnownModels4 modelLearner;
 
         boolean useCorrectType = true;
+        boolean useCandidateTypes = false;
         int numberOfCandidates = 4;
 
 
@@ -1862,7 +2609,7 @@ public class ModelLearner_KnownModels4 {
         modelLearner.nodeIdFactory = modelLearner.graphBuilder.getNodeIdFactory();
 
         //添加斯坦纳树节点
-        modelLearner.hypothesize2(useCorrectType, numberOfCandidates);////////5.29 与hypothesize_correct_candidates_smtypes功能相同
+        modelLearner.hypothesize2(useCorrectType, numberOfCandidates, useCandidateTypes);////////5.29 与hypothesize_correct_candidates_smtypes功能相同
 //        modelLearner.hypothesize_correct_candidates_smtypes(numberOfCandidates);//////5.29
 
         System.out.println("IntegrationGraph_AllSMWithCandidateSTs中edge.size:"+modelLearner.graphBuilder.getGraph().edgeSet().size());
@@ -2489,7 +3236,9 @@ public class ModelLearner_KnownModels4 {
         semanticModels = null;
         ontologyManager = null;
 
-        getCandidateSemanticModels(24, new Integer[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,26,27,28});
+//        getCandidateSemanticModels(2, new Integer[]{0,1,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28});
+
+        KarmaForSemanticModeling(0);
 
         /**Reasoning-Evaluation-test**/
 //        Map<String,String> map1 = new HashMap<String,String>();

@@ -438,7 +438,7 @@ public class GenerateTriples {
 
     public static void main(String[] args) throws Exception {
         String dataSetName = "EDM";
-        String dataSourceName = "s08";
+        String dataSourceName = "s05";
 //        String positiveSMPath = "D:/ASM/CRM/positive-models/sub-same-positive-models-json-all/" + dataSourceName;
 //        String negativeSMPath = "D:/ASM/CRM/negative-models/sub-same-negative-models-json-all/" + dataSourceName;
 //        String subDataSourceTxtPath = "D:/ASM/CRM/DataSet/" + dataSourceName;
@@ -449,10 +449,16 @@ public class GenerateTriples {
 //        String subDataSourceTxtPath = "/home/ykyang/XuProgram/Project/GenerateExamples/karma_research_23/ASM/CRM/DataSet/" + dataSourceName;
 //        String partitionModelsPath = "/home/ykyang/XuProgram/Project/GenerateExamples/karma_research_23/ASM/CRM/partition-models/";
 
-        String positiveSMPath = Params.EDM_ROOT_DIR_2023 + "positive-models/sub-same-positive-models-json-all/" + dataSourceName;
-        String negativeSMPath = Params.EDM_ROOT_DIR_2023 + "negative-models/sub-same-negative-models-json-all/" + dataSourceName;
-        String subDataSourceTxtPath = Params.EDM_ROOT_DIR_2023 + "DataSet/" + dataSourceName;
-        String partitionModelsPath = Params.EDM_ROOT_DIR_2023 + "partition-models/";
+//        String positiveSMPath = Params.EDM_ROOT_DIR_2023 + "positive-models/sub-same-positive-models-json-all/" + dataSourceName;
+//        String negativeSMPath = Params.EDM_ROOT_DIR_2023 + "negative-models/sub-same-negative-models-json-all/" + dataSourceName;
+//        String subDataSourceTxtPath = Params.EDM_ROOT_DIR_2023 + "DataSet/" + dataSourceName;
+//        String partitionModelsPath = Params.EDM_ROOT_DIR_2023 + "partition-models/";
+
+        String positiveSMPath = Params.EDM_ROOT_DIR_2023_LINUX + "positive-models/sub-same-positive-models-json-all/" + dataSourceName;
+        String negativeSMPath = Params.EDM_ROOT_DIR_2023_LINUX + "negative-models/sub-same-negative-models-json-all/" + dataSourceName;
+        String subDataSourceTxtPath = Params.EDM_ROOT_DIR_2023_LINUX + "DataSet/" + dataSourceName;
+        String partitionModelsPath = Params.EDM_ROOT_DIR_2023_LINUX + "partition-models/";
+
 
         if(!(new File(subDataSourceTxtPath).exists()))
             new File(subDataSourceTxtPath).mkdirs();
@@ -460,7 +466,8 @@ public class GenerateTriples {
         /**read attributes in order from the original data source**/
 //        InputStreamReader reader = new InputStreamReader(new FileInputStream("D:/ASM/CRM/sources20230313/"+dataSourceName+".csv"), StandardCharsets.UTF_8);
 //        InputStreamReader reader = new InputStreamReader(new FileInputStream("/home/ykyang/XuProgram/Project/GenerateExamples/sources20230313/"+dataSourceName+".csv"), StandardCharsets.UTF_8);
-        InputStreamReader reader = new InputStreamReader(new FileInputStream(Params.EDM_ROOT_DIR_2023 + "sources20230711/"+dataSourceName+".csv"), StandardCharsets.UTF_8);
+//        InputStreamReader reader = new InputStreamReader(new FileInputStream(Params.EDM_ROOT_DIR_2023 + "sources20230711/"+dataSourceName+".csv"), StandardCharsets.UTF_8);
+        InputStreamReader reader = new InputStreamReader(new FileInputStream(Params.EDM_ROOT_DIR_2023_LINUX + "sources20230711/"+dataSourceName+".csv"), StandardCharsets.UTF_8);
 
         CSVReader csvReader = new CSVReaderBuilder(reader).build();
         List<String[]> list = csvReader.readAll();

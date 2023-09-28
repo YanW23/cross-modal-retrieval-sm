@@ -1028,10 +1028,17 @@ public class GenerateNegativeSamples {
     }
 
 
-    public static List<SemanticModel> mergeIntoTree(SemanticModel searchSemanticModelState,DirectedWeightedMultigraph<Node, DefaultLink> Gint,ColumnNode attributeNode,Boolean noDefaultLink,Set<InternalNode> internalNodesWithUseOntPaths, Boolean hasOntPaths) throws Exception {
+    public static List<SemanticModel> mergeIntoTree(SemanticModel searchSemanticModelState,DirectedWeightedMultigraph<Node, DefaultLink> Gint,ColumnNode attributeNode,Boolean noDefaultLink,Set<InternalNode> internalNodesWithUseOntPaths, Boolean hasOntPaths, Boolean pFlag, Boolean cFlag) throws Exception {
         System.out.println("enter mergeIntoTree for adding only one column node to the current search semantic model state");
         System.out.println("enter mergeIntoTree and add "+attributeNode.getColumnName());
         int count = 0;
+
+        String pURI = "http://www.americanartcollaborative.org/ontology/Person";
+        String cURI = "http://www.americanartcollaborative.org/ontology/CulturalHeritageObject";
+        String pID = null;
+        String cID = null;
+        int pIdNum = 0;
+        int cIdNum = 0;
 
         Set<InternalNode> internalNodesOfSearchSemanticModelState = new HashSet<InternalNode>();
         Set<String> internalNodeIdsOfSearchSemanticModelState = new HashSet<String>();
@@ -1053,6 +1060,20 @@ public class GenerateNegativeSamples {
         for(InternalNode internalNode: internalNodesOfSearchSemanticModelState){
             internalNodeIdsOfSearchSemanticModelState.add(internalNode.getId());
             internalNodeIdWithInternalNode.put(internalNode.getId(),internalNode);
+            if((internalNode.getId().contains(pURI)) && (pIdNum < 2)){
+                pID = internalNode.getId();
+                pIdNum++;
+            }
+            else{
+                System.out.println("pID is wrong");
+            }
+            if((internalNode.getId().contains(cURI)) && (cIdNum < 2)){
+                cID = internalNode.getId();
+                cIdNum++;
+            }
+            else{
+                System.out.println("cID is wrong");
+            }
         }
         assert internalNodesOfSearchSemanticModelState.size() == searchSemanticModelState.getInternalNodes().size(): "internalNodesOfSearchSemanticModelState.size != internalNodeIdsOfSearchSemanticModelState.size";
         assert internalNodeIdWithInternalNode.size() == searchSemanticModelState.getInternalNodes().size(): "internalNodeIdWithInternalNode.size != internalNodeIdsOfSearchSemanticModelState.size";
@@ -1110,7 +1131,7 @@ public class GenerateNegativeSamples {
         Set<SemanticType> allSemanticTypesForAddedAttributeNode = new HashSet<SemanticType>();
 //        if(getSemanticTypes(attributeNode,false,true,4).size()>0)
 //            allSemanticTypesForAddedAttributeNode = getSemanticTypes(attributeNode,true,true,4);
-        allSemanticTypesForAddedAttributeNode = getSemanticTypes(attributeNode,true,false,4);
+        allSemanticTypesForAddedAttributeNode = getSemanticTypes(attributeNode,true,true,4);
         assert allSemanticTypesForAddedAttributeNode.size() > 0 && allSemanticTypesForAddedAttributeNode.size() < 6: "allSemanticTypesForAddedAttributeNode < 0 or allSemanticTypesForAddedAttributeNode > 5";
 
         /**mntPts save the links whose node has same semantic types with the added attribute node**/
@@ -1353,6 +1374,21 @@ public class GenerateNegativeSamples {
                             isNeededConnectedPath = false;
                             break;
                         }
+
+                        /**if pFlag or cFlag is true, we need to avoid the cases that the generated semantic model has 2 or more persons and culturalHeritageObjects**/
+                        if(pFlag){
+                            if((pID != null) && (connected_path_intoMount.get(i).getUri().equals(pURI)) && (!connected_path_intoMount.get(i).getId().equals(pID))){
+                                isNeededConnectedPath = false;
+                                break;
+                            }
+                        }
+                        if(cFlag){
+                            if((cID != null) && (connected_path_intoMount.get(i).getUri().equals(cURI)) && (!connected_path_intoMount.get(i).getId().equals(cID))){
+                                isNeededConnectedPath = false;
+                                break;
+                            }
+                        }
+
                     }
                     if (!isNeededConnectedPath)
                         continue;
@@ -1391,7 +1427,14 @@ public class GenerateNegativeSamples {
                 //check whether mntPtSourceNode exists in the initial search semantic model state
                 if (internalNodeIdsOfSearchSemanticModelState.contains(mntPtSourceNode.getId())) {
                     continue;
-                } else {
+                }
+                else if (pFlag && (pID != null) && (mntPtSourceNode.getUri().equals(pURI)) && (!mntPtSourceNode.getId().equals(pID))){
+                    continue;
+                }
+                else if (cFlag && (cID != null) && (mntPtSourceNode.getUri().equals(cURI)) && (!mntPtSourceNode.getId().equals(cID))){
+                    continue;
+                }
+                else {
                     //loop all internal nodes in the initial search semantic model state
                     for (Node internalNode : internalNodesOfSearchSemanticModelState) {
                         //loop all internal node mappings in the integration graph for each internal node in the initial search semantic model state
@@ -1467,6 +1510,20 @@ public class GenerateNegativeSamples {
                         }
 
                         /**如果path.size()>2 检查当前pathnode的nodes(除第一个node外)是否存在于StartSearchState的InternalNodes中  避免出现环**/
+
+                        /**if pFlag or cFlag is true, we need to avoid the cases that the generated semantic model has 2 or more persons and culturalHeritageObjects**/
+                        if(pFlag){
+                            if((pID != null) && (connected_path_intoTree.get(i).getUri().equals(pURI)) && (!connected_path_intoTree.get(i).getId().equals(pID))){
+                                isNeededConnectedPath = false;
+                                break;
+                            }
+                        }
+                        if(cFlag){
+                            if((cID != null) && (connected_path_intoTree.get(i).getUri().equals(cURI)) && (!connected_path_intoTree.get(i).getId().equals(cID))){
+                                isNeededConnectedPath = false;
+                                break;
+                            }
+                        }
                     }
                     if (!isNeededConnectedPath)
                         continue;
@@ -1507,13 +1564,20 @@ public class GenerateNegativeSamples {
                  * the largest path is 3: represents there is a maximum of one node between source and target**/
                 //find the common ancestor nodes for the mntPt source node and the root node of the initial search
                 //semantic model state, we only find the ancestor nodes with depth 1 currently
-                Set<Node> commonAncestorNodes = new HashSet<Node>();
-                for (Node rootMappingNode : rootMappingsList) {
+                if (pFlag && (pID != null) && (mntPtSourceNode.getUri().equals(pURI)) && (!mntPtSourceNode.getId().equals(pID))){
+                    continue;
+                }
+                else if (cFlag && (cID != null) && (mntPtSourceNode.getUri().equals(cURI)) && (!mntPtSourceNode.getId().equals(cID))){
+                    continue;
+                }
+                else {
+                    Set<Node> commonAncestorNodes = new HashSet<Node>();
+                    for (Node rootMappingNode : rootMappingsList) {
 //                    allTriangleTreeConnectedPathsUsingNodesForOneRoot = new ArrayList<List<Node>>();
 //                    allTriangleMountConnectedPathsUsingNodesForOneRoot = new ArrayList<List<Node>>();
 
 //                    commonAncestorNodes = getCommonAncestorNodes(mntPtSourceNode,rootMappingNode,3,attributeNode);
-                    commonAncestorNodes = getCommonAncestorNodes(mntPtSourceNode,rootMappingNode,3,hasOntPaths);
+                        commonAncestorNodes = getCommonAncestorNodes(mntPtSourceNode, rootMappingNode, 3, hasOntPaths);
 
 //                    commonAncestorNodes = new HashSet<Node>();
 //                    for (Node mntPtAncestorNode : mntPtSourceNode.getSourceNodes()) {
@@ -1523,164 +1587,197 @@ public class GenerateNegativeSamples {
 //                            commonAncestorNodes.add(mntPtAncestorNode);
 //                        }
 //                    }
-                    System.out.println(rootMappingNode.getId() + " commonAncestorNodes.size:" + commonAncestorNodes.size());
-                    //loop the ancestor node in commonAncestorNodes, and find the paths from the ancestor node to the root of the initial search semantic model state and mntPtSourceNode
-                    for (Node commonAncestorNode : commonAncestorNodes) {
-                        allTriangleTreeConnectedPathsUsingNodesForOneRoot = new ArrayList<List<Node>>();
-                        allTriangleMountConnectedPathsUsingNodesForOneRoot = new ArrayList<List<Node>>();
-                        //view the common ancestor node as source node, one of the root in the initial search semantic model as the target node
-                        FindPaths.connectedPathsNode = new ArrayList<List<Node>>();
-                        if(hasOntPaths) {
-                            FindPaths.useInternalNodesWithOntPaths = 0;
-                            findAllPathNode(linksOfIntegrationGraph, commonAncestorNode.getId(), rootMappingNode.getId(), 4, mntPtSourceNode);
-                        }
-                        else
-                            findAllPathNode(linksOfIntegrationGraph, commonAncestorNode.getId(), rootMappingNode.getId(), 4);
-                        for(List<Node> tempPathNodes: FindPaths.connectedPathsNode){
-                            Set<Node> intersection = new HashSet<Node>(temp_internalNodesWithUseOntPaths);
-                            intersection.retainAll(tempPathNodes);
-                            if(intersection.size()==0)
-                                allTriangleTreeConnectedPathsUsingNodesForOneRoot.add(tempPathNodes);
-                        }
+                        System.out.println(rootMappingNode.getId() + " commonAncestorNodes.size:" + commonAncestorNodes.size());
+                        //loop the ancestor node in commonAncestorNodes, and find the paths from the ancestor node to the root of the initial search semantic model state and mntPtSourceNode
+                        for (Node commonAncestorNode : commonAncestorNodes) {
+
+                            if(pFlag && (pID != null) && (commonAncestorNode.getUri().equals(pURI)) && (!commonAncestorNode.getId().equals(pID)))
+                                continue;
+                            if(cFlag && (cID != null) && (commonAncestorNode.getUri().equals(cURI)) && (!commonAncestorNode.getId().equals(cID)))
+                                continue;
+
+                            allTriangleTreeConnectedPathsUsingNodesForOneRoot = new ArrayList<List<Node>>();
+                            allTriangleMountConnectedPathsUsingNodesForOneRoot = new ArrayList<List<Node>>();
+                            //view the common ancestor node as source node, one of the root in the initial search semantic model as the target node
+                            FindPaths.connectedPathsNode = new ArrayList<List<Node>>();
+                            if (hasOntPaths) {
+                                FindPaths.useInternalNodesWithOntPaths = 0;
+                                findAllPathNode(linksOfIntegrationGraph, commonAncestorNode.getId(), rootMappingNode.getId(), 4, mntPtSourceNode);
+                            } else
+                                findAllPathNode(linksOfIntegrationGraph, commonAncestorNode.getId(), rootMappingNode.getId(), 4);
+                            for (List<Node> tempPathNodes : FindPaths.connectedPathsNode) {
+                                Set<Node> intersection = new HashSet<Node>(temp_internalNodesWithUseOntPaths);
+                                intersection.retainAll(tempPathNodes);
+                                if (intersection.size() == 0)
+                                    allTriangleTreeConnectedPathsUsingNodesForOneRoot.add(tempPathNodes);
+                            }
 //                        allTriangleTreeConnectedPathsUsingNodesForOneRoot.addAll(FindPaths.connectedPathsNode);
-                        if(allTriangleTreeConnectedPathsUsingNodesForOneRoot.size() == 0)
-                            continue;
+                            if (allTriangleTreeConnectedPathsUsingNodesForOneRoot.size() == 0)
+                                continue;
 
-                        //view the common ancestor node as source node, mntPt source node as the target node
-                        FindPaths.connectedPathsNode = new ArrayList<List<Node>>();
-                        if(hasOntPaths) {
-                            FindPaths.useInternalNodesWithOntPaths = 0;
-                            findAllPathNode(linksOfIntegrationGraph, commonAncestorNode.getId(), mntPtSourceNode.getId(), 4, mntPtSourceNode);
-                        }
-                        else
-                            findAllPathNode(linksOfIntegrationGraph, commonAncestorNode.getId(), mntPtSourceNode.getId(), 4);
-                        for(List<Node> tempPathNodes: FindPaths.connectedPathsNode){
-                            Set<Node> intersection = new HashSet<Node>(temp_internalNodesWithUseOntPaths);
-                            intersection.retainAll(tempPathNodes);
-                            if(intersection.size()==0)
-                                allTriangleMountConnectedPathsUsingNodesForOneRoot.add(tempPathNodes);
-                        }
+                            //view the common ancestor node as source node, mntPt source node as the target node
+                            FindPaths.connectedPathsNode = new ArrayList<List<Node>>();
+                            if (hasOntPaths) {
+                                FindPaths.useInternalNodesWithOntPaths = 0;
+                                findAllPathNode(linksOfIntegrationGraph, commonAncestorNode.getId(), mntPtSourceNode.getId(), 4, mntPtSourceNode);
+                            } else
+                                findAllPathNode(linksOfIntegrationGraph, commonAncestorNode.getId(), mntPtSourceNode.getId(), 4);
+                            for (List<Node> tempPathNodes : FindPaths.connectedPathsNode) {
+                                Set<Node> intersection = new HashSet<Node>(temp_internalNodesWithUseOntPaths);
+                                intersection.retainAll(tempPathNodes);
+                                if (intersection.size() == 0)
+                                    allTriangleMountConnectedPathsUsingNodesForOneRoot.add(tempPathNodes);
+                            }
 //                        allTriangleMountConnectedPathsUsingNodesForOneRoot.addAll(FindPaths.connectedPathsNode);
-                        if(allTriangleMountConnectedPathsUsingNodesForOneRoot.size() == 0)
-                            continue;
-
-                        //loop all connected_path_triangleTree
-                        for (List<Node> connected_path_triangleTree : allTriangleTreeConnectedPathsUsingNodesForOneRoot) {
-                            //if there are two same nodes in the path, we need to ignore this path because it appears a circle
-                            Set<Node> judgeSet = new HashSet<Node>(connected_path_triangleTree);
-                            if(judgeSet.size()!=connected_path_triangleTree.size())
+                            if (allTriangleMountConnectedPathsUsingNodesForOneRoot.size() == 0)
                                 continue;
-                            allNeededConnectedPathsUsingLinksForOneTreePathUsingNodes = new ArrayList<List<DefaultLink>>();
-                            isNeededConnectedPath = true;
-                            allNodePairLinksList = new ArrayList<List<DefaultLink>>();
-                            for (int i = 0; i < connected_path_triangleTree.size() - 1; i++) {
-                                /**avoid circle, we need to check whether the node (except tree-root node) in the connected_path_triangleTree exists in initial search semantic model state (internal nodes)**/
-                                if (internalNodeIdWithInternalNode.keySet().contains(connected_path_triangleTree.get(i).getId())) {
-                                    // allNodePairLinksList = new ArrayList<List<DefaultLink>>();
-                                    isNeededConnectedPath = false;
-                                    break;
-                                }
-                                //the connected_path_triangleTree doesn't have circles, we need to get the connected path using links
-                                if(nodePairStringWithLinksInIntegrationGraph.containsKey(connected_path_triangleTree.get(i).getId() + connected_path_triangleTree.get(i + 1).getId())) {
-                                    allNodePairLinksList.add(nodePairStringWithLinksInIntegrationGraph.get(connected_path_triangleTree.get(i).getId() + connected_path_triangleTree.get(i + 1).getId()));
-                                }
-                                else{
-                                    isNeededConnectedPath = false;
-                                    break;
-                                }
-                            }
-                            if (!isNeededConnectedPath)
-                                continue;
-                            if (allNodePairLinksList.size() > 0) {
-                                //obtain all needed connected paths for the current connected_path_triangleTree
-                                allNeededConnectedPathsUsingLinksForOneTreePathUsingNodes = descartesRecursive(allNodePairLinksList);
-                            }
-                            assert allNeededConnectedPathsUsingLinksForOneTreePathUsingNodes.size() > 0 : "allNeededConnectedPathsUsingLinksForOneTreePathUsingNodes.size <= 0";
 
-                            //loop all connected_path_triangleMount
-                            for (List<Node> connected_path_triangleMount : allTriangleMountConnectedPathsUsingNodesForOneRoot) {
-                                if(connected_path_triangleMount.size() > (6-connected_path_triangleTree.size()))
-                                    continue;
-
+                            //loop all connected_path_triangleTree
+                            for (List<Node> connected_path_triangleTree : allTriangleTreeConnectedPathsUsingNodesForOneRoot) {
                                 //if there are two same nodes in the path, we need to ignore this path because it appears a circle
-                                judgeSet = new HashSet<Node>(connected_path_triangleMount);
-                                if(judgeSet.size()!=connected_path_triangleMount.size())
+                                Set<Node> judgeSet = new HashSet<Node>(connected_path_triangleTree);
+                                if (judgeSet.size() != connected_path_triangleTree.size())
                                     continue;
-
-                                List<Node> intersection = new ArrayList<Node>(connected_path_triangleTree);
-                                intersection.retainAll(connected_path_triangleMount);
-                                if (intersection.size() > 1)//there are two or more same nodes in the tree and the mntPt
-                                    continue;
-
-                                allNeededConnectedPathsUsingLinksForOnePathUsingNodes = new ArrayList<List<DefaultLink>>();
-                                allNeededConnectedPathsUsingLinksForOneMountPathUsingNodes = new ArrayList<List<DefaultLink>>();
+                                allNeededConnectedPathsUsingLinksForOneTreePathUsingNodes = new ArrayList<List<DefaultLink>>();
                                 isNeededConnectedPath = true;
                                 allNodePairLinksList = new ArrayList<List<DefaultLink>>();
-                                allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode = new ArrayList<List<List<DefaultLink>>>();
-
-                                for (int i = 0; i < connected_path_triangleMount.size() - 1; i++) {
-                                    /**avoid circle, we need to check whether the node (except tree-root node) in the connected_path_triangleMount exists in initial search semantic model state (internal nodes)**/
-                                    if (internalNodeIdWithInternalNode.keySet().contains(connected_path_triangleMount.get(i).getId())) {
+                                for (int i = 0; i < connected_path_triangleTree.size() - 1; i++) {
+                                    /**avoid circle, we need to check whether the node (except tree-root node) in the connected_path_triangleTree exists in initial search semantic model state (internal nodes)**/
+                                    if (internalNodeIdWithInternalNode.keySet().contains(connected_path_triangleTree.get(i).getId())) {
                                         // allNodePairLinksList = new ArrayList<List<DefaultLink>>();
                                         isNeededConnectedPath = false;
                                         break;
                                     }
-                                    //the connected_path_triangleMount doesn't have circles, we need to get the connected path using links
-                                    if(nodePairStringWithLinksInIntegrationGraph.containsKey(connected_path_triangleMount.get(i).getId() + connected_path_triangleMount.get(i + 1).getId())) {
-                                        allNodePairLinksList.add(nodePairStringWithLinksInIntegrationGraph.get(connected_path_triangleMount.get(i).getId() + connected_path_triangleMount.get(i + 1).getId()));
-                                    }
-                                    else{
+                                    //the connected_path_triangleTree doesn't have circles, we need to get the connected path using links
+                                    if (nodePairStringWithLinksInIntegrationGraph.containsKey(connected_path_triangleTree.get(i).getId() + connected_path_triangleTree.get(i + 1).getId())) {
+                                        allNodePairLinksList.add(nodePairStringWithLinksInIntegrationGraph.get(connected_path_triangleTree.get(i).getId() + connected_path_triangleTree.get(i + 1).getId()));
+                                    } else {
                                         isNeededConnectedPath = false;
                                         break;
                                     }
+
+                                    /**if pFlag or cFlag is true, we need to avoid the cases that the generated semantic model has 2 or more persons and culturalHeritageObjects**/
+                                    if(pFlag){
+                                        if((pID != null) && (connected_path_triangleTree.get(i).getUri().equals(pURI)) && (!connected_path_triangleTree.get(i).getId().equals(pID))){
+                                            isNeededConnectedPath = false;
+                                            break;
+                                        }
+                                    }
+                                    if(cFlag){
+                                        if((cID != null) && (connected_path_triangleTree.get(i).getUri().equals(cURI)) && (!connected_path_triangleTree.get(i).getId().equals(cID))){
+                                            isNeededConnectedPath = false;
+                                            break;
+                                        }
+                                    }
+
                                 }
                                 if (!isNeededConnectedPath)
                                     continue;
                                 if (allNodePairLinksList.size() > 0) {
-                                    //obtain all needed connected paths for the current connected_path_triangleMount
-                                    allNeededConnectedPathsUsingLinksForOneMountPathUsingNodes = descartesRecursive(allNodePairLinksList);
+                                    //obtain all needed connected paths for the current connected_path_triangleTree
+                                    allNeededConnectedPathsUsingLinksForOneTreePathUsingNodes = descartesRecursive(allNodePairLinksList);
                                 }
-                                assert allNeededConnectedPathsUsingLinksForOneMountPathUsingNodes.size() > 0 : "allNeededConnectedPathsUsingLinksForOneMountPathUsingNodes.size <= 0";
+                                assert allNeededConnectedPathsUsingLinksForOneTreePathUsingNodes.size() > 0 : "allNeededConnectedPathsUsingLinksForOneTreePathUsingNodes.size <= 0";
 
-                                allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode.add(allNeededConnectedPathsUsingLinksForOneTreePathUsingNodes);
-                                allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode.add(allNeededConnectedPathsUsingLinksForOneMountPathUsingNodes);
-                                assert allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode.size() > 1 : "allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode.size <= 1";
+                                //loop all connected_path_triangleMount
+                                for (List<Node> connected_path_triangleMount : allTriangleMountConnectedPathsUsingNodesForOneRoot) {
+                                    if (connected_path_triangleMount.size() > (6 - connected_path_triangleTree.size()))
+                                        continue;
 
-                                allNeededConnectedPathsUsingLinksForOnePathUsingNodes = descartesRecursiveForDoubleList(allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode);
+                                    //if there are two same nodes in the path, we need to ignore this path because it appears a circle
+                                    judgeSet = new HashSet<Node>(connected_path_triangleMount);
+                                    if (judgeSet.size() != connected_path_triangleMount.size())
+                                        continue;
 
-                                for (List<DefaultLink> pathUsingLinks : allNeededConnectedPathsUsingLinksForOnePathUsingNodes) {
-                                    assert pathUsingLinks.size() == connected_path_triangleTree.size() + connected_path_triangleMount.size() - 2 : "triangle pathUsingLinks size is wrong";
-                                    if (noDefaultLink) {
-                                        pathWithDefaultLink = false;//judge if the needed connected_path_triangle has default link
-                                        for (DefaultLink link : pathUsingLinks) {
-                                            if (link.getUri().toString().equals("http://isi.edu/integration/karma/dev#defaultLink")) {
-                                                pathWithDefaultLink = true;
+                                    List<Node> intersection = new ArrayList<Node>(connected_path_triangleTree);
+                                    intersection.retainAll(connected_path_triangleMount);
+                                    if (intersection.size() > 1)//there are two or more same nodes in the tree and the mntPt
+                                        continue;
+
+                                    allNeededConnectedPathsUsingLinksForOnePathUsingNodes = new ArrayList<List<DefaultLink>>();
+                                    allNeededConnectedPathsUsingLinksForOneMountPathUsingNodes = new ArrayList<List<DefaultLink>>();
+                                    isNeededConnectedPath = true;
+                                    allNodePairLinksList = new ArrayList<List<DefaultLink>>();
+                                    allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode = new ArrayList<List<List<DefaultLink>>>();
+
+                                    for (int i = 0; i < connected_path_triangleMount.size() - 1; i++) {
+                                        /**avoid circle, we need to check whether the node (except tree-root node) in the connected_path_triangleMount exists in initial search semantic model state (internal nodes)**/
+                                        if (internalNodeIdWithInternalNode.keySet().contains(connected_path_triangleMount.get(i).getId())) {
+                                            // allNodePairLinksList = new ArrayList<List<DefaultLink>>();
+                                            isNeededConnectedPath = false;
+                                            break;
+                                        }
+                                        //the connected_path_triangleMount doesn't have circles, we need to get the connected path using links
+                                        if (nodePairStringWithLinksInIntegrationGraph.containsKey(connected_path_triangleMount.get(i).getId() + connected_path_triangleMount.get(i + 1).getId())) {
+                                            allNodePairLinksList.add(nodePairStringWithLinksInIntegrationGraph.get(connected_path_triangleMount.get(i).getId() + connected_path_triangleMount.get(i + 1).getId()));
+                                        } else {
+                                            isNeededConnectedPath = false;
+                                            break;
+                                        }
+
+                                        /**if pFlag or cFlag is true, we need to avoid the cases that the generated semantic model has 2 or more persons and culturalHeritageObjects**/
+                                        if(pFlag){
+                                            if((pID != null) && (connected_path_triangleMount.get(i).getUri().equals(pURI)) && (!connected_path_triangleMount.get(i).getId().equals(pID))){
+                                                isNeededConnectedPath = false;
                                                 break;
                                             }
                                         }
-                                        if (!pathWithDefaultLink) {
-                                            allTrianglePathsForMntPtSourceNode.add(pathUsingLinks);
+                                        if(cFlag){
+                                            if((cID != null) && (connected_path_triangleMount.get(i).getUri().equals(cURI)) && (!connected_path_triangleMount.get(i).getId().equals(cID))){
+                                                isNeededConnectedPath = false;
+                                                break;
+                                            }
                                         }
-                                    } else {
-                                        if(((InternalNode) mntPtSourceNode).getUseOntPaths()){
-                                            allTrianglePathsForMntPtSourceNode.add(pathUsingLinks);
-                                            hasTrianglePathForSteinerNodeWithOntPaths = true;
-                                            break;
-                                        }
-                                        allTrianglePathsForMntPtSourceNode.add(pathUsingLinks);
+
                                     }
+                                    if (!isNeededConnectedPath)
+                                        continue;
+                                    if (allNodePairLinksList.size() > 0) {
+                                        //obtain all needed connected paths for the current connected_path_triangleMount
+                                        allNeededConnectedPathsUsingLinksForOneMountPathUsingNodes = descartesRecursive(allNodePairLinksList);
+                                    }
+                                    assert allNeededConnectedPathsUsingLinksForOneMountPathUsingNodes.size() > 0 : "allNeededConnectedPathsUsingLinksForOneMountPathUsingNodes.size <= 0";
+
+                                    allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode.add(allNeededConnectedPathsUsingLinksForOneTreePathUsingNodes);
+                                    allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode.add(allNeededConnectedPathsUsingLinksForOneMountPathUsingNodes);
+                                    assert allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode.size() > 1 : "allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode.size <= 1";
+
+                                    allNeededConnectedPathsUsingLinksForOnePathUsingNodes = descartesRecursiveForDoubleList(allNodePairLinksListBetweenTreeAndMntPtWithCommonAncestorNode);
+
+                                    for (List<DefaultLink> pathUsingLinks : allNeededConnectedPathsUsingLinksForOnePathUsingNodes) {
+                                        assert pathUsingLinks.size() == connected_path_triangleTree.size() + connected_path_triangleMount.size() - 2 : "triangle pathUsingLinks size is wrong";
+                                        if (noDefaultLink) {
+                                            pathWithDefaultLink = false;//judge if the needed connected_path_triangle has default link
+                                            for (DefaultLink link : pathUsingLinks) {
+                                                if (link.getUri().toString().equals("http://isi.edu/integration/karma/dev#defaultLink")) {
+                                                    pathWithDefaultLink = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!pathWithDefaultLink) {
+                                                allTrianglePathsForMntPtSourceNode.add(pathUsingLinks);
+                                            }
+                                        } else {
+                                            if (((InternalNode) mntPtSourceNode).getUseOntPaths()) {
+                                                allTrianglePathsForMntPtSourceNode.add(pathUsingLinks);
+                                                hasTrianglePathForSteinerNodeWithOntPaths = true;
+                                                break;
+                                            }
+                                            allTrianglePathsForMntPtSourceNode.add(pathUsingLinks);
+                                        }
+                                    }
+                                    if ((((InternalNode) mntPtSourceNode).getUseOntPaths()) && (hasTrianglePathForSteinerNodeWithOntPaths))
+                                        break;
                                 }
-                                if((((InternalNode) mntPtSourceNode).getUseOntPaths()) && (hasTrianglePathForSteinerNodeWithOntPaths))
+                                if ((((InternalNode) mntPtSourceNode).getUseOntPaths()) && (hasTrianglePathForSteinerNodeWithOntPaths))
                                     break;
                             }
-                            if((((InternalNode) mntPtSourceNode).getUseOntPaths()) && (hasTrianglePathForSteinerNodeWithOntPaths))
+                            if ((((InternalNode) mntPtSourceNode).getUseOntPaths()) && (hasTrianglePathForSteinerNodeWithOntPaths))
                                 break;
                         }
-                        if((((InternalNode) mntPtSourceNode).getUseOntPaths()) && (hasTrianglePathForSteinerNodeWithOntPaths))
+                        if ((((InternalNode) mntPtSourceNode).getUseOntPaths()) && (hasTrianglePathForSteinerNodeWithOntPaths))
                             break;
                     }
-                    if((((InternalNode) mntPtSourceNode).getUseOntPaths()) && (hasTrianglePathForSteinerNodeWithOntPaths))
-                        break;
                 }
                 allThreeTypesPathsForMntPtSourceNode.addAll(allTrianglePathsForMntPtSourceNode);//add all trianglePaths for a mntPtSourceNode into allThreeTypesPathsForMntPtSourceNode, don't forget add it into mntPtSourceNodeWithThreeTypesPathsUsingLinks map when adding all three types paths
                 System.out.println("add allTrianglePathsForMntPtSourceNode, allThreeTypesPathsForMntPtSourceNode.size:" + allThreeTypesPathsForMntPtSourceNode.size());
@@ -3411,7 +3508,9 @@ public class GenerateNegativeSamples {
     }
 
     public static void getIntegrationGraphTriplesForModelTraining() throws Exception {
-        String SemanticModelsPath = Params.ROOT_DIR_2023; // 这里是models-json-20230313文件夹的目录
+//        String SemanticModelsPath = Params.ROOT_DIR_2023; // 这里是models-json-20230313文件夹的目录
+        String SemanticModelsPath = Params.EDM_ROOT_DIR_2023; // 这里是models-json-20230313文件夹的目录	public static String EDM_ROOT_DIR_2023 = "D:/ASM/EDM/";
+
         List<SemanticModel> allSemanticModels = null;
         List<SemanticModel> allSemanticModelsWithCandidateSemanticTypes = null;
         int predictSourceIndex = 0;
@@ -3423,8 +3522,11 @@ public class GenerateNegativeSamples {
         Set<String> allPreNodes = new HashSet<String>();
         Set<String> allProNodes = new HashSet<String>();
 
-        allSemanticModels = ModelReader.importSemanticModelsFromJsonFiles(SemanticModelsPath + "models-json-20230313", Params.MODEL_MAIN_FILE_EXT);
-        allSemanticModelsWithCandidateSemanticTypes = ModelReader.importSemanticModelsFromJsonFiles(SemanticModelsPath + "labeled-models-json-20230402", Params.MODEL_MAIN_FILE_EXT);
+//        allSemanticModels = ModelReader.importSemanticModelsFromJsonFiles(SemanticModelsPath + "models-json-20230313", Params.MODEL_MAIN_FILE_EXT);
+//        allSemanticModelsWithCandidateSemanticTypes = ModelReader.importSemanticModelsFromJsonFiles(SemanticModelsPath + "labeled-models-json-20230402", Params.MODEL_MAIN_FILE_EXT);
+
+        allSemanticModels = ModelReader.importSemanticModelsFromJsonFiles(SemanticModelsPath + "models-json-20230711", Params.MODEL_MAIN_FILE_EXT);
+        allSemanticModelsWithCandidateSemanticTypes = ModelReader.importSemanticModelsFromJsonFiles(SemanticModelsPath + "labeled-models-json-20230711", Params.MODEL_MAIN_FILE_EXT);
 
         for(int j=0;j<29;j++) {
 
@@ -3490,7 +3592,7 @@ public class GenerateNegativeSamples {
         //save triples to txt
         BufferedWriter bw;
         try{
-            bw = new BufferedWriter(new FileWriter("D:/ASM/CRM/allTriples.txt"));
+            bw = new BufferedWriter(new FileWriter("D:/ASM/EDM/allTriples.txt"));
             for(String triple: allTriples) {
 //                System.out.println("triplesForOneRegionSemanticModels:" + triplesForOneRegionSemanticModel);
                 bw.write(triple);
@@ -3504,7 +3606,7 @@ public class GenerateNegativeSamples {
 
         //save preNodes to txt
         try{
-            bw = new BufferedWriter(new FileWriter("D:/ASM/CRM/allPreNodes.txt"));
+            bw = new BufferedWriter(new FileWriter("D:/ASM/EDM/allPreNodes.txt"));
             for(String preNode: allPreNodes) {
 //                System.out.println("triplesForOneRegionSemanticModels:" + triplesForOneRegionSemanticModel);
                 bw.write(preNode);
@@ -3518,7 +3620,7 @@ public class GenerateNegativeSamples {
 
         //save proNodes to txt
         try{
-            bw = new BufferedWriter(new FileWriter("D:/ASM/CRM/allProNodes.txt"));
+            bw = new BufferedWriter(new FileWriter("D:/ASM/EDM/allProNodes.txt"));
             for(String proNode: allProNodes) {
 //                System.out.println("triplesForOneRegionSemanticModels:" + triplesForOneRegionSemanticModel);
                 bw.write(proNode);
@@ -3762,15 +3864,41 @@ public class GenerateNegativeSamples {
                 break;
 
             predictSourceIndex = j;
+
+            /**
+             * 植科院服务器
+             * **/
+//            predictSemanticModel = semanticModelsWithCandidateSemanticTypes.get(predictSourceIndex);
+//
+//            System.out.println("predictSemanticModel.name:" + predictSemanticModel.getName());
+//
+//            // get train semantic models index array
+//            trainSemanticModels = new ArrayList<SemanticModel>();
+//            for (int i = 0; i < sourceNum; i++) {
+//                if (i != predictSourceIndex) {
+//                    trainSemanticModels.add(semanticModels.get(i));
+//                }
+//            }
+
+            /**
+             * 课题组服务器
+             * **/
             predictSemanticModel = semanticModelsWithCandidateSemanticTypes.get(predictSourceIndex);
+
+            System.out.println("predictSemanticModel.name:" + predictSemanticModel.getName());
 
             // get train semantic models index array
             trainSemanticModels = new ArrayList<SemanticModel>();
             for (int i = 0; i < sourceNum; i++) {
-                if (i != predictSourceIndex) {
+                if(semanticModelsWithCandidateSemanticTypes.get(i).getName().equals("s05.csv"))
+                    predictSemanticModel = semanticModelsWithCandidateSemanticTypes.get(i);
+                if (!(semanticModels.get(i).getName().equals("s05.csv"))) {
                     trainSemanticModels.add(semanticModels.get(i));
                 }
             }
+
+            System.out.println("predictSemanticModel.name:" + predictSemanticModel.getName());
+
 
 //            // 2023/04/22 get specific train semantic models
 //            trainSemanticModels = new ArrayList<SemanticModel>();
@@ -3835,6 +3963,8 @@ public class GenerateNegativeSamples {
                 dataSourceName = "s0" + (predictSourceIndex + 1);
             else
                 dataSourceName = "s" + (predictSourceIndex + 1);
+
+            System.out.println("dataSourceName:" + dataSourceName);
 
 //            String positiveSemanticModelSavePathForOneDataSource = "D:\\ASM\\CRM\\positive-models\\sub-same-positive-models-json-all\\" + dataSourceName + "\\";
 //            String positiveSemanticModelSavePathForOneDataSource = Params.ROOT_DIR_2023 + "positive-models\\sub-same-positive-models-json-all\\" + dataSourceName + "\\";
